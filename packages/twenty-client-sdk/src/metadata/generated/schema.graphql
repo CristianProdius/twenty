@@ -402,6 +402,7 @@ type ApplicationConnectedAccountDTO {
 }
 
 type ApplicationConnectionProvider {
+  allowedVisibilities: [String!]!
   applicationId: String!
   displayName: String!
   id: UUID!

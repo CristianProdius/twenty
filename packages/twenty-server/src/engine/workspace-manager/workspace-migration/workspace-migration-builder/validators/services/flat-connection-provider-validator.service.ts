@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { msg, t } from '@lingui/core/macro';
 import { isNonEmptyString } from '@sniptt/guards';
+import { isValidConnectionProviderAllowedVisibilities } from 'twenty-shared/application';
 import { ALL_METADATA_NAME } from 'twenty-shared/metadata';
 import { isDefined } from 'twenty-shared/utils';
 
@@ -11,6 +12,7 @@ import { type FailedFlatEntityValidation } from 'src/engine/workspace-manager/wo
 import { getEmptyFlatEntityValidationError } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/utils/get-flat-entity-validation-error.util';
 import { type FlatEntityUpdateValidationArgs } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/universal-flat-entity-update-validation-args.type';
 import { type UniversalFlatEntityValidationArgs } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/universal-flat-entity-validation-args.type';
+import { type UniversalFlatConnectionProvider } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-connection-provider.type';
 
 @Injectable()
 export class FlatConnectionProviderValidatorService {
@@ -99,6 +101,10 @@ export class FlatConnectionProviderValidatorService {
       });
     }
 
+    validationResult.errors.push(
+      ...this.validateAllowedVisibilities(flatConnectionProvider),
+    );
+
     return validationResult;
   }
 
@@ -139,6 +145,7 @@ export class FlatConnectionProviderValidatorService {
 
   public validateFlatConnectionProviderUpdate({
     universalIdentifier,
+    flatEntityUpdate,
     optimisticFlatEntityMapsAndRelatedFlatEntityMaps: {
       flatConnectionProviderMaps: optimisticFlatConnectionProviderMaps,
     },
@@ -168,6 +175,31 @@ export class FlatConnectionProviderValidatorService {
       return validationResult;
     }
 
+    validationResult.errors.push(
+      ...this.validateAllowedVisibilities({
+        ...fromFlatConnectionProvider,
+        ...flatEntityUpdate,
+      }),
+    );
+
     return validationResult;
+  }
+
+  private validateAllowedVisibilities(
+    provider: Pick<UniversalFlatConnectionProvider, 'allowedVisibilities'>,
+  ): FailedFlatEntityValidation<'connectionProvider', 'create'>['errors'] {
+    if (
+      isValidConnectionProviderAllowedVisibilities(provider.allowedVisibilities)
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        code: ConnectionProviderExceptionCode.INVALID_CONNECTION_PROVIDER_INPUT,
+        message: t`Connection provider allowedVisibilities must contain unique user or workspace values`,
+        userFriendlyMessage: msg`Choose personal connections, workspace connections, or both for this provider.`,
+      },
+    ];
   }
 }

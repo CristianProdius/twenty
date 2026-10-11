@@ -330,6 +330,7 @@ export interface ApplicationConnectedAccountDTO {
 }
 
 export interface ApplicationConnectionProvider {
+    allowedVisibilities: Scalars['String'][]
     applicationId: Scalars['String']
     displayName: Scalars['String']
     id: Scalars['UUID']
@@ -4260,6 +4261,7 @@ export interface ApplicationConnectedAccountDTOGenqlSelection{
 }
 
 export interface ApplicationConnectionProviderGenqlSelection{
+    allowedVisibilities?: boolean | number
     applicationId?: boolean | number
     displayName?: boolean | number
     id?: boolean | number

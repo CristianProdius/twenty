@@ -100,6 +100,8 @@ For third-party connections:
 - Document required OAuth or API setup in the app README or listing.
 - Verify failure states for expired or missing credentials.
 
+Declare `allowedVisibilities` on each `defineConnectionProvider`: `['user']` for personal connections, `['workspace']` for shared connections, or both. Omission permits both, including when an app update removes a previous restriction. The declaration controls new connections and sharing; existing connections keep their visibility and can still reconnect or disconnect. Wait for a personal connection settings screen before making an existing shared provider personal-only.
+
 ## Post-Install Hooks
 
 Use `definePostInstallLogicFunction` for records that must exist on install — default workflows, views, roles, or seeded reference data. Do not implement this as runtime first-run code.
