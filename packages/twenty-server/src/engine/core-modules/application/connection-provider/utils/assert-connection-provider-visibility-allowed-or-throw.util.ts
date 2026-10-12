@@ -34,7 +34,7 @@ export const assertConnectionProviderVisibilityAllowedOrThrow = ({
 
   throw new ConnectionProviderException(
     `The connection provider does not allow ${visibility} connections.`,
-    ConnectionProviderExceptionCode.INVALID_REQUEST,
+    ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
     {
       userFriendlyMessage:
         visibility === 'user'

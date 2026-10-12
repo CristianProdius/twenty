@@ -144,7 +144,11 @@ export class AppConnectionAccessService {
     }
 
     const visibility =
-      requestedVisibility ?? reconnectTarget?.visibility ?? 'user';
+      requestedVisibility ??
+      reconnectTarget?.visibility ??
+      (currentProvider.allowedVisibilities.length === 1
+        ? currentProvider.allowedVisibilities[0]
+        : 'user');
 
     await this.validateCallerCanManageConnection({
       isWorkspaceShared:

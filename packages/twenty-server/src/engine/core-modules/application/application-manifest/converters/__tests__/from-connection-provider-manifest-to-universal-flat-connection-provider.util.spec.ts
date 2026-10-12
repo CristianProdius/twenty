@@ -72,17 +72,17 @@ describe('fromConnectionProviderManifestToUniversalFlatConnectionProvider', () =
     expect(result.logo).toBe('public/linear-logomark.svg');
   });
 
-  it('preserves explicitly restricted connection choices', () => {
+  it('sorts declared connection choices so their order does not cause updates', () => {
     const result =
       fromConnectionProviderManifestToUniversalFlatConnectionProvider({
         connectionProviderManifest: buildManifest({
-          allowedVisibilities: ['user'],
+          allowedVisibilities: ['workspace', 'user'],
         }),
         applicationUniversalIdentifier: APP_UID,
         now: NOW,
       });
 
-    expect(result.allowedVisibilities).toEqual(['user']);
+    expect(result.allowedVisibilities).toEqual(['user', 'workspace']);
   });
 
   it('resolves the onConnectLogicFunction universalIdentifier into the flat field when provided', () => {

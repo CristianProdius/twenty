@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
+import { type ConnectedAccountVisibility } from 'twenty-shared/types';
 
 import { useRedirect } from '@/domain-manager/hooks/useRedirect';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
@@ -26,7 +27,7 @@ export const useTriggerAppOAuth = () => {
       //   'user'      = personal credential, only the creator can use it.
       //   'workspace' = shared with all members of the workspace.
       // Distinct from the OAuth `scopes` granted by the upstream provider.
-      visibility: 'user' | 'workspace';
+      visibility: ConnectedAccountVisibility;
       // Set to update an existing connectedAccount row rather than creating
       // a new one (the "Reconnect" action on a failed credential).
       reconnectingConnectedAccountId?: string;

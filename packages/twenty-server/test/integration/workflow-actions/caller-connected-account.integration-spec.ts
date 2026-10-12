@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
 
-import { ConnectedAccountProvider } from 'twenty-shared/types';
+import {
+  ConnectedAccountProvider,
+  type ConnectedAccountVisibility,
+} from 'twenty-shared/types';
 import { IsNull } from 'typeorm';
 
 import { setupGoogleMock } from 'test/integration/google/mocks/setup-google-mock.util';
@@ -9,10 +12,7 @@ import { runWorkflowActionStep } from 'test/integration/graphql/suites/workflow/
 import { connectMessagingAccount } from 'test/integration/utils/connect-messaging-account.util';
 import { getCoreRepository } from 'test/integration/utils/get-core-repository.util';
 
-import {
-  ConnectedAccountEntity,
-  type ConnectedAccountVisibility,
-} from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
+import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { USER_WORKSPACE_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-user-workspaces.util';
 

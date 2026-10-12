@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { ConnectedAccountProvider } from 'twenty-shared/types';
+import {
+  ConnectedAccountProvider,
+  type ConnectedAccountVisibility,
+} from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { Repository } from 'typeorm';
 
@@ -18,7 +21,7 @@ type SaveConnectionArgs = {
   workspaceId: string;
   userId: string;
   userWorkspaceId: string;
-  visibility: 'user' | 'workspace';
+  visibility: ConnectedAccountVisibility;
   reconnectingConnectedAccountId: string | null;
 };
 

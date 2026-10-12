@@ -26,6 +26,7 @@ const connectionProviderExceptionCodeToHttpStatus = (
     case ConnectionProviderExceptionCode.FORBIDDEN:
       return 403;
     case ConnectionProviderExceptionCode.INVALID_REQUEST:
+    case ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED:
     case ConnectionProviderExceptionCode.INVALID_STATE:
     case ConnectionProviderExceptionCode.PROVIDER_CHANGED_DURING_AUTHORIZATION:
     case ConnectionProviderExceptionCode.INVALID_CONNECTION_PROVIDER_INPUT:

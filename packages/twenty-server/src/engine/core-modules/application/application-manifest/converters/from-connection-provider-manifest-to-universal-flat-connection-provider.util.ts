@@ -6,6 +6,22 @@ import {
 
 import { type UniversalFlatConnectionProvider } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-connection-provider.type';
 
+// Invalid declarations pass through untouched so the sync validator can reject them.
+const resolveAllowedVisibilities = (
+  allowedVisibilities: ConnectionProviderManifest['allowedVisibilities'],
+): UniversalFlatConnectionProvider['allowedVisibilities'] => {
+  if (allowedVisibilities === undefined) {
+    return [...DEFAULT_CONNECTION_PROVIDER_ALLOWED_VISIBILITIES];
+  }
+
+  if (!Array.isArray(allowedVisibilities)) {
+    return allowedVisibilities;
+  }
+
+  // A stable order keeps a reordered declaration from emitting an update on every sync.
+  return [...allowedVisibilities].sort();
+};
+
 export const fromConnectionProviderManifestToUniversalFlatConnectionProvider =
   ({
     connectionProviderManifest,
@@ -42,10 +58,9 @@ export const fromConnectionProviderManifestToUniversalFlatConnectionProvider =
       applicationUniversalIdentifier,
       name: connectionProviderManifest.name,
       displayName: connectionProviderManifest.displayName,
-      allowedVisibilities:
-        connectionProviderManifest.allowedVisibilities === undefined
-          ? [...DEFAULT_CONNECTION_PROVIDER_ALLOWED_VISIBILITIES]
-          : connectionProviderManifest.allowedVisibilities,
+      allowedVisibilities: resolveAllowedVisibilities(
+        connectionProviderManifest.allowedVisibilities,
+      ),
       logo: connectionProviderManifest.logo ?? null,
       type: connectionProviderManifest.type,
       oauthConfig,

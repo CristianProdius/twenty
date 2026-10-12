@@ -1,4 +1,7 @@
-import { type ConnectedAccountVisibility } from '@/types/ConnectedAccountVisibility';
+import {
+  type ConnectedAccountVisibility,
+  isConnectedAccountVisibility,
+} from '@/types/ConnectedAccountVisibility';
 import { isNonEmptyArray } from '@/utils/array/isNonEmptyArray';
 
 export const isValidConnectionProviderAllowedVisibilities = (
@@ -6,7 +9,5 @@ export const isValidConnectionProviderAllowedVisibilities = (
 ): visibilities is ConnectedAccountVisibility[] =>
   Array.isArray(visibilities) &&
   isNonEmptyArray(visibilities) &&
-  [...visibilities].every(
-    (visibility) => visibility === 'user' || visibility === 'workspace',
-  ) &&
+  visibilities.every(isConnectedAccountVisibility) &&
   new Set(visibilities).size === visibilities.length;

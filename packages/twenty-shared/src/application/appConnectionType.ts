@@ -1,3 +1,5 @@
+import { type ConnectedAccountVisibility } from '@/types/ConnectedAccountVisibility';
+
 // Wire shape exchanged between an app's logic-function runtime and the
 // `/apps/connections/list` and `/apps/connections/get` endpoints.
 //
@@ -24,7 +26,7 @@ export type AppConnection = {
   // Named `visibility` (not `scope`) to disambiguate from the `scopes`
   // array below, which is the unrelated set of OAuth permissions granted
   // by the upstream provider.
-  visibility: 'user' | 'workspace';
+  visibility: ConnectedAccountVisibility;
   // The userWorkspace that originally created the credential (also the owner
   // for `visibility: 'user'` credentials). Match against `event.userWorkspaceId`
   // to resolve the request user's connection.

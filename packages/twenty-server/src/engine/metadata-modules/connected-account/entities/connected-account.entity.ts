@@ -26,8 +26,6 @@ import { type CalendarChannelEntity } from 'src/engine/metadata-modules/calendar
 import { type MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
 import { WorkspaceRelatedEntity } from 'src/engine/workspace-manager/types/workspace-related-entity.type';
 
-export type { ConnectedAccountVisibility } from 'twenty-shared/types';
-
 @Entity({ name: 'connectedAccount', schema: 'core' })
 @Index('IDX_CONNECTED_ACCOUNT_CONNECTION_PROVIDER_ID', ['connectionProviderId'])
 @Index('IDX_CONNECTED_ACCOUNT_APPLICATION_ID', ['applicationId'])

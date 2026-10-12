@@ -216,14 +216,14 @@ describe('app manifest connection visibility choices', () => {
     });
   }, 120000);
 
-  it('defaults an omitted declaration to workspace connections only', async () => {
+  it('defaults an omitted declaration to workspace connections only and resolves an omitted visibility to it', async () => {
     const { errors } = await syncApplication({ manifest: buildManifest() });
     expect(errors).toBeUndefined();
     expect((await readProvider()).allowedVisibilities).toEqual(['workspace']);
     await expect(authorize({ visibility: 'user' })).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
     });
-    const result = await complete(await authorize({ visibility: 'workspace' }));
+    const result = await complete(await authorize());
     expect(
       await accounts().findOneByOrFail({ id: result.connectedAccountId }),
     ).toMatchObject({ visibility: 'workspace' });
@@ -235,10 +235,10 @@ describe('app manifest connection visibility choices', () => {
       const forbidden = allowed === 'user' ? 'workspace' : 'user';
       await setChoices([allowed]);
       await expect(authorize({ visibility: forbidden })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
       });
       await expect(save({ visibility: forbidden })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
       });
       expect(tokenExchanges).toBe(0);
       const result = await complete(await authorize({ visibility: allowed }));
@@ -254,10 +254,10 @@ describe('app manifest connection visibility choices', () => {
       const original = await save({ visibility });
       await setChoices([visibility === 'user' ? 'workspace' : 'user']);
       await expect(authorize({ visibility })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
       });
       await expect(save({ visibility })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
       });
       const result = await complete(
         await authorize({
@@ -285,10 +285,10 @@ describe('app manifest connection visibility choices', () => {
       };
 
       await expect(authorize(reconnect)).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
       });
       await expect(save({ ...reconnect, visibility })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
       });
       expect(tokenExchanges).toBe(0);
       expect(
@@ -309,10 +309,10 @@ describe('app manifest connection visibility choices', () => {
       visibility: 'workspace' as const,
     };
     await expect(authorize(share)).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
     });
     await expect(save(share)).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
     });
     await setChoices(['workspace']);
     const result = await complete(await authorize(share));
@@ -326,7 +326,7 @@ describe('app manifest connection visibility choices', () => {
     const state = await authorize({ visibility: 'workspace' });
     await setChoices(['user']);
     await expect(complete(state)).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
     });
     expect(tokenExchanges).toBe(0);
     expect(await accounts().countBy({ applicationId })).toBe(0);
@@ -341,7 +341,7 @@ describe('app manifest connection visibility choices', () => {
       }),
     );
     await expect(complete(state)).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
     });
     expect(await accounts().countBy({ applicationId })).toBe(0);
   });

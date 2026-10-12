@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
+import { type ConnectedAccountVisibility } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
 import { AppConnectionAccessService } from 'src/engine/core-modules/application/connection-provider/app-connection-access.service';
@@ -33,7 +34,7 @@ type AuthorizeArgs = {
   workspaceId: string;
   userId: string;
   userWorkspaceId: string;
-  visibility?: 'user' | 'workspace';
+  visibility?: ConnectedAccountVisibility;
   reconnectingConnectedAccountId: string | null;
   redirectLocation: string | null;
 };

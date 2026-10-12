@@ -1,5 +1,6 @@
 import { type AppConnection } from '@/sdk/logic-function/connections/types/app-connection.type';
 import { postGraphqlRequest } from '@/sdk/logic-function/utils/post-graphql-request.util';
+import { type ConnectedAccountVisibility } from 'twenty-shared/types';
 
 const LIST_APP_CONNECTIONS_QUERY = `
   query ListAppConnections($filter: ListAppConnectionsInput) {
@@ -22,7 +23,7 @@ const LIST_APP_CONNECTIONS_QUERY = `
 export type ListConnectionsFilter = {
   providerName?: string;
   userWorkspaceId?: string;
-  visibility?: 'user' | 'workspace';
+  visibility?: ConnectedAccountVisibility;
 };
 
 export const listConnections = async (

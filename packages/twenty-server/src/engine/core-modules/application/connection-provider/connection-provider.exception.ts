@@ -23,6 +23,8 @@ const getConnectionProviderExceptionUserFriendlyMessage = (
       return msg`The app's connection settings changed while you were authorizing. Please try connecting again.`;
     case ConnectionProviderExceptionCode.INVALID_REQUEST:
       return msg`The OAuth request is missing required parameters.`;
+    case ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED:
+      return msg`This app does not allow this kind of connection.`;
     case ConnectionProviderExceptionCode.FORBIDDEN:
       return msg`Not authorized to access this OAuth provider.`;
     case ConnectionProviderExceptionCode.INVALID_CONNECTION_PROVIDER_INPUT:

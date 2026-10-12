@@ -7,6 +7,7 @@ import { findApplicationConnectionProviders } from 'test/integration/metadata/su
 import { findConnectionProvidersByApplication } from 'test/integration/metadata/suites/connection-provider/utils/find-connection-providers-by-application.util';
 import { type ConnectionProviderManifest } from 'twenty-shared/application';
 import { type ConnectedAccountVisibility } from 'twenty-shared/types';
+import { isDefined } from 'twenty-shared/utils';
 import { v4 } from 'uuid';
 
 const APPLICATION_IDENTIFIER = v4();
@@ -71,7 +72,9 @@ describe('Connection provider choices in application manifests', () => {
       const [provider] = await findConnectionProvidersByApplication(
         APPLICATION_IDENTIFIER,
       );
-      const expectedChoices = allowedVisibilities ?? ['workspace'];
+      const expectedChoices = isDefined(allowedVisibilities)
+        ? [...allowedVisibilities].sort()
+        : ['workspace'];
       expect(provider.allowedVisibilities).toEqual(expectedChoices);
 
       const result = await findApplicationConnectionProviders({

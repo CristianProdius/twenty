@@ -3,7 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { type Response } from 'express';
 import { type APP_LOCALES, SOURCE_LOCALE } from 'twenty-shared/translations';
-import { ApiPath, SettingsPath } from 'twenty-shared/types';
+import {
+  ApiPath,
+  isConnectedAccountVisibility,
+  SettingsPath,
+} from 'twenty-shared/types';
 import { getSettingsPath, isDefined } from 'twenty-shared/utils';
 import { Repository } from 'typeorm';
 
@@ -69,11 +73,7 @@ export class ConnectionProviderOAuthController {
         );
       }
 
-      if (
-        visibility !== undefined &&
-        visibility !== 'user' &&
-        visibility !== 'workspace'
-      ) {
+      if (isDefined(visibility) && !isConnectedAccountVisibility(visibility)) {
         throw new ConnectionProviderException(
           `Invalid visibility "${visibility}" — must be 'user' or 'workspace'`,
           ConnectionProviderExceptionCode.INVALID_REQUEST,
@@ -134,7 +134,7 @@ export class ConnectionProviderOAuthController {
           workspaceId,
           userId,
           userWorkspaceId: userWorkspace.id,
-          visibility: visibility as 'user' | 'workspace' | undefined,
+          visibility,
           reconnectingConnectedAccountId:
             reconnectingConnectedAccountId ?? null,
           redirectLocation: redirectLocation ?? null,
