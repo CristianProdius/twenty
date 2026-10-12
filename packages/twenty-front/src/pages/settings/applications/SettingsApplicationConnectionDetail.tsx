@@ -126,6 +126,8 @@ export const SettingsApplicationConnectionDetail = () => {
     (connectionProvider) =>
       connectionProvider.id === connection?.connectionProviderId,
   );
+  const canShareWithWorkspace =
+    provider?.allowedVisibilities.includes('workspace') ?? false;
 
   const applicationName = application?.name ?? t`Application`;
   const connectionLabel =
@@ -165,7 +167,7 @@ export const SettingsApplicationConnectionDetail = () => {
     if (
       connection === undefined ||
       provider === undefined ||
-      !provider.allowedVisibilities.includes('workspace')
+      !canShareWithWorkspace
     ) {
       return;
     }
@@ -341,7 +343,7 @@ export const SettingsApplicationConnectionDetail = () => {
                   >{t`Reconnect`}</Button>
                 )}
                 {connection.visibility !== 'workspace' &&
-                  provider.allowedVisibilities.includes('workspace') && (
+                  canShareWithWorkspace && (
                     <Button
                       startIcon={<IconUsers />}
                       onClick={() => openDialog(shareWithWorkspaceModalId)}
@@ -395,7 +397,7 @@ export const SettingsApplicationConnectionDetail = () => {
               confirmButtonText={t`Disconnect`}
               loading={isDeleting}
             />
-            {provider.allowedVisibilities.includes('workspace') && (
+            {canShareWithWorkspace && (
               <ConfirmationDialog
                 dialogId={shareWithWorkspaceModalId}
                 title={t`Share with workspace?`}

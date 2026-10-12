@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client/react';
+import { isDefined } from 'twenty-shared/utils';
 
 import { useRefetchOnApplicationOperation } from '@/applications/hooks/useRefetchOnApplicationOperation';
 import { FIND_APPLICATION_CONNECTION_PROVIDERS } from '@/settings/applications/graphql/queries/findApplicationConnectionProviders';
@@ -24,7 +25,8 @@ export const useFindApplicationConnectionProviders = (
 
   return {
     connectionProviders: data?.applicationConnectionProviders ?? [],
-    loading,
+    // A background refetch keeps showing the cached providers instead of flickering back to empty.
+    loading: loading && !isDefined(data),
     refetch,
   };
 };

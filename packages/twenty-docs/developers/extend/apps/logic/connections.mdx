@@ -284,10 +284,12 @@ The mutation behind this helper ships with Twenty 2.40.0, so calling it against 
 
 <Accordion title="Per-user vs workspace-shared visibility" description="How users choose between private and shared credentials">
 
-When a user clicks "Add connection," they're prompted to pick a visibility:
+Each connection has one of two visibilities:
 
-- **Just for me** — the credential is private to the connecting user. Any logic function called on their behalf (HTTP-route trigger with `isAuthRequired: true`) sees it; cron triggers and database events do not.
-- **Workspace shared** — any workspace member can use the credential. Cron / database triggers also see it, since they have no request user.
+- **Personal** (`'user'`) — the credential is private to the connecting user. Any logic function called on their behalf (HTTP-route trigger with `isAuthRequired: true`) sees it; cron triggers and database events do not.
+- **Workspace shared** (`'workspace'`) — any workspace member can use the credential. Cron / database triggers also see it, since they have no request user.
+
+"Add connection" in the app's settings creates a workspace-shared connection; there is no visibility picker. A member can turn their own personal connection into a shared one with **Share with workspace** when the provider allows `workspace`.
 
 Use the right one for each handler:
 
