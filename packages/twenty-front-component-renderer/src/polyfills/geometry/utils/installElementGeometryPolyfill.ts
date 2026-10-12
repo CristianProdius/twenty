@@ -63,10 +63,8 @@ export const installElementGeometryPolyfill = ({
 
   const defineGeometryGetter = ({
     propertyName,
-    hasNoOpSetter = false,
   }: {
     propertyName: keyof ElementGeometrySnapshot;
-    hasNoOpSetter?: boolean;
   }): void => {
     Object.defineProperty(elementPrototype, propertyName, {
       get(this: object) {
@@ -78,7 +76,6 @@ export const installElementGeometryPolyfill = ({
 
         return snapshot?.[propertyName] ?? 0;
       },
-      ...(hasNoOpSetter && { set() {} }),
       configurable: true,
     });
   };
@@ -94,12 +91,10 @@ export const installElementGeometryPolyfill = ({
     'clientLeft',
     'scrollWidth',
     'scrollHeight',
+    'scrollTop',
+    'scrollLeft',
   ] as const) {
     defineGeometryGetter({ propertyName });
-  }
-
-  for (const propertyName of ['scrollTop', 'scrollLeft'] as const) {
-    defineGeometryGetter({ propertyName, hasNoOpSetter: true });
   }
 
   Object.defineProperty(elementPrototype, 'offsetParent', {
