@@ -100,7 +100,7 @@ For third-party connections:
 - Document required OAuth or API setup in the app README or listing.
 - Verify failure states for expired or missing credentials.
 
-Declare `allowedVisibilities` on each `defineConnectionProvider`: `['workspace']` for shared connections, or `['user', 'workspace']` to also allow personal connections. Omitted means workspace only, including when an app update removes a previous declaration. Personal-only `['user']` is rejected until a personal connection settings screen exists. The declaration controls new connections and sharing; existing connections keep their visibility and can still reconnect or disconnect.
+Declare `allowedVisibilities` on each `defineConnectionProvider`: `['workspace']` for shared connections, or `['user', 'workspace']` to also allow personal connections. Omitted means workspace only, including when an app update removes a previous declaration. Personal-only `['user']` is rejected until a personal connection settings screen exists. Older servers ignore the field, so an app that relies on the restriction must declare `"engines": { "twenty": ">=2.47.0" }` in `package.json`. The declaration controls new connections and sharing; existing connections keep their visibility and can still reconnect or disconnect.
 
 ## Post-Install Hooks
 

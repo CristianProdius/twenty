@@ -108,6 +108,8 @@ Set `allowedVisibilities` on each `defineConnectionProvider` declaration:
 
 Omitted means workspace only. Declare `['user', 'workspace']` to also allow personal connections.
 
+`allowedVisibilities` is enforced from Twenty 2.47.0. Older servers ignore the field and allow both visibilities, so if your app relies on the restriction, declare the dependency in your `package.json`: `"engines": { "twenty": ">=2.47.0" }`.
+
 The list must contain at least one supported value, without duplicates. Providers in the same app can declare different choices. These choices describe access to credentials; they do not change who can see records the app creates.
 
 Personal-only declarations (`['user']`) are rejected by `defineConnectionProvider` and by app sync for now: the workspace app settings only offer **Add connection** for shared connections, and there is no personal connection screen yet.
