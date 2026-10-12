@@ -271,6 +271,36 @@ describe('app manifest connection visibility choices', () => {
     },
   );
 
+  it.each(['user', 'workspace'] as const)(
+    'refuses to revive an archived %s connection whose visibility is no longer allowed',
+    async (visibility) => {
+      const original = await save({ visibility });
+      await metadataService.disconnect({
+        id: original.connectedAccount.id,
+        workspaceId,
+      });
+      await setChoices([visibility === 'user' ? 'workspace' : 'user']);
+      const reconnect = {
+        reconnectingConnectedAccountId: original.connectedAccount.id,
+      };
+
+      await expect(authorize(reconnect)).rejects.toMatchObject({
+        code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+      });
+      await expect(save({ ...reconnect, visibility })).rejects.toMatchObject({
+        code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+      });
+      expect(tokenExchanges).toBe(0);
+      expect(
+        await accounts().findOneByOrFail({ id: original.connectedAccount.id }),
+      ).toMatchObject({
+        archivedAt: expect.anything(),
+        accessToken: null,
+        refreshToken: null,
+      });
+    },
+  );
+
   it('permits sharing only when the current declaration allows workspace connections', async () => {
     const original = await save();
     await setChoices(['user']);
@@ -372,7 +402,7 @@ describe('app manifest connection visibility choices', () => {
         code: PermissionsExceptionCode.PERMISSION_DENIED,
       });
       expect(tokenExchanges).toBe(0);
-        expect(
+      expect(
         await accounts().findOneByOrFail({ id: original.connectedAccount.id }),
       ).toMatchObject({
         userWorkspaceId: member.id,

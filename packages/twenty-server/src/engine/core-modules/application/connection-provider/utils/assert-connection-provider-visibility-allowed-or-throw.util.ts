@@ -1,5 +1,6 @@
 import { msg } from '@lingui/core/macro';
 import { type ConnectedAccountVisibility } from 'twenty-shared/types';
+import { isDefined } from 'twenty-shared/utils';
 
 import { ConnectionProviderExceptionCode } from 'src/engine/core-modules/application/connection-provider/connection-provider-exception-code.enum';
 import { type ConnectionProviderEntity } from 'src/engine/core-modules/application/connection-provider/connection-provider.entity';
@@ -13,11 +14,19 @@ export const assertConnectionProviderVisibilityAllowedOrThrow = ({
 }: {
   provider: Pick<ConnectionProviderEntity, 'allowedVisibilities'>;
   visibility: ConnectedAccountVisibility;
-  reconnectTarget: Pick<ConnectedAccountEntity, 'visibility'> | null;
+  reconnectTarget: Pick<
+    ConnectedAccountEntity,
+    'visibility' | 'archivedAt'
+  > | null;
 }): void => {
-  // App updates must preserve reconnects without grandfathering sharing.
+  // App updates must preserve reconnects of live connections without grandfathering sharing or reviving archived ones.
+  const isGrandfatheredReconnect =
+    isDefined(reconnectTarget) &&
+    !isDefined(reconnectTarget.archivedAt) &&
+    reconnectTarget.visibility === visibility;
+
   if (
-    reconnectTarget?.visibility === visibility ||
+    isGrandfatheredReconnect ||
     provider.allowedVisibilities.includes(visibility)
   ) {
     return;

@@ -114,7 +114,7 @@ Personal-only declarations (`['user']`) are rejected by `defineConnectionProvide
 
 The server checks the declaration when authorization starts and again before saving the credentials, including when the app updates during OAuth. Sharing an existing personal connection with the workspace also requires `workspace` to be allowed.
 
-Changing this declaration does not move, hide, or delete existing connections. Members who can manage an existing connection can still disconnect it or reconnect it with the same visibility, even when that visibility is no longer offered for new connections. A shared connection cannot become personal through reconnect. Removing `allowedVisibilities` from a later manifest restores the workspace-only default for new connections.
+Changing this declaration does not move, hide, or delete existing connections. Members who can manage an existing connection can still disconnect it or reconnect it with the same visibility, even when that visibility is no longer offered for new connections. A disconnected connection can only be reconnected with a visibility the current declaration allows. A shared connection cannot become personal through reconnect. Removing `allowedVisibilities` from a later manifest restores the workspace-only default for new connections.
 
 </Accordion>
 
