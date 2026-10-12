@@ -57,7 +57,6 @@ describe('Connection provider choices in application manifests', () => {
   it('persists declarations and restores the workspace-only default when omitted on update', async () => {
     const declarations: Array<ConnectedAccountVisibility[] | undefined> = [
       undefined,
-      ['user'],
       ['workspace'],
       ['workspace', 'user'],
       undefined,
@@ -85,6 +84,23 @@ describe('Connection provider choices in application manifests', () => {
       ]);
     }
   }, 120000);
+
+  it('rejects a personal-only declaration until personal connections can be added', async () => {
+    const { errors } = await syncApplication({
+      manifest: buildManifest(['user']),
+      expectToFail: true,
+    });
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0].extensions).toMatchObject({
+      code: 'METADATA_VALIDATION_FAILED',
+      userFriendlyMessage:
+        "Personal-only connection providers are not supported yet; include 'workspace'.",
+    });
+    expect(
+      await findConnectionProvidersByApplication(APPLICATION_IDENTIFIER),
+    ).toHaveLength(0);
+  }, 60000);
 
   describe.each(['create', 'update'] as const)('%s validation', (operation) => {
     it.each([

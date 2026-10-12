@@ -101,17 +101,16 @@ https://<your-twenty-server>/auth/apps/callback
 
 Set `allowedVisibilities` on each `defineConnectionProvider` declaration:
 
-| Declaration                                  | Connection choices                                             |
-| -------------------------------------------- | -------------------------------------------------------------- |
-| `allowedVisibilities: ['user']`              | Personal connections, usable by the member who connected them. |
-| `allowedVisibilities: ['workspace']`         | Connections shared with the workspace.                         |
-| `allowedVisibilities: ['user', 'workspace']` | Both choices.                                                  |
+| Declaration                                  | Connection choices                                                                     |
+| -------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `allowedVisibilities: ['workspace']`         | Connections shared with the workspace.                                                 |
+| `allowedVisibilities: ['user', 'workspace']` | Shared connections, plus personal connections usable by the member who connected them. |
 
-Omitted means workspace only. Declare `['user']` or `['user', 'workspace']` to allow personal connections.
+Omitted means workspace only. Declare `['user', 'workspace']` to also allow personal connections.
 
 The list must contain at least one supported value, without duplicates. Providers in the same app can declare different choices. These choices describe access to credentials; they do not change who can see records the app creates.
 
-The current workspace app settings only offer **Add connection** for providers that allow `workspace`. Declaring `user` alone does not add a personal settings screen. Introduce the personal connection entry point before changing a shipped provider to personal-only.
+Personal-only declarations (`['user']`) are rejected by `defineConnectionProvider` and by app sync for now: the workspace app settings only offer **Add connection** for shared connections, and there is no personal connection screen yet.
 
 The server checks the declaration when authorization starts and again before saving the credentials, including when the app updates during OAuth. Sharing an existing personal connection with the workspace also requires `workspace` to be allowed.
 

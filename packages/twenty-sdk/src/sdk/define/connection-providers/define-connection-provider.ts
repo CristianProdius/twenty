@@ -45,13 +45,19 @@ export const defineConnectionProvider: DefineEntity<
     errors.push('Connection provider must have a displayName');
   }
 
-  if (
-    config.allowedVisibilities !== undefined &&
-    !isValidConnectionProviderAllowedVisibilities(config.allowedVisibilities)
-  ) {
-    errors.push(
-      "Connection provider allowedVisibilities must be a non-empty array of unique 'user' or 'workspace' values.",
-    );
+  if (config.allowedVisibilities !== undefined) {
+    if (
+      !isValidConnectionProviderAllowedVisibilities(config.allowedVisibilities)
+    ) {
+      errors.push(
+        "Connection provider allowedVisibilities must be a non-empty array of unique 'user' or 'workspace' values.",
+      );
+    } else if (!config.allowedVisibilities.includes('workspace')) {
+      // Settings only offer Add for workspace connections; drop this once a personal connection page exists.
+      errors.push(
+        "Personal-only connection providers are not supported yet; include 'workspace'.",
+      );
+    }
   }
 
   for (const hookKey of LIFECYCLE_HOOK_KEYS) {

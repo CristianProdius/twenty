@@ -20,7 +20,6 @@ const baseValidConfig = {
 
 describe('defineConnectionProvider', () => {
   it.each<{ allowedVisibilities: ConnectedAccountVisibility[] }>([
-    { allowedVisibilities: ['user'] },
     { allowedVisibilities: ['workspace'] },
     { allowedVisibilities: ['user', 'workspace'] },
     { allowedVisibilities: ['workspace', 'user'] },
@@ -56,6 +55,18 @@ describe('defineConnectionProvider', () => {
       );
     },
   );
+
+  it('rejects personal-only connection choices', () => {
+    const result = defineConnectionProvider({
+      ...baseValidConfig,
+      allowedVisibilities: ['user'],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.errors).toEqual([
+      "Personal-only connection providers are not supported yet; include 'workspace'.",
+    ]);
+  });
 
   it('returns success for a valid config', () => {
     const result = defineConnectionProvider(baseValidConfig);

@@ -87,10 +87,17 @@ describe('app manifest connection visibility choices', () => {
   const setChoices = async (
     allowedVisibilities: ConnectedAccountVisibility[],
   ) => {
-    const { errors } = await syncApplication({
-      manifest: buildManifest(allowedVisibilities),
-    });
-    expect(errors).toBeUndefined();
+    if (allowedVisibilities.includes('workspace')) {
+      const { errors } = await syncApplication({
+        manifest: buildManifest(allowedVisibilities),
+      });
+      expect(errors).toBeUndefined();
+    }
+    // Sync refuses personal-only declarations for now, so the row is written directly to keep exercising the runtime check.
+    await providers().update(
+      { universalIdentifier: providerIdentifier, workspaceId },
+      { allowedVisibilities },
+    );
   };
   const tokenResponse = () =>
     HttpResponse.json({

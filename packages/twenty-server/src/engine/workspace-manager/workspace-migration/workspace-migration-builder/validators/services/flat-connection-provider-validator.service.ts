@@ -189,17 +189,30 @@ export class FlatConnectionProviderValidatorService {
     provider: Pick<UniversalFlatConnectionProvider, 'allowedVisibilities'>,
   ): FailedFlatEntityValidation<'connectionProvider', 'create'>['errors'] {
     if (
-      isValidConnectionProviderAllowedVisibilities(provider.allowedVisibilities)
+      !isValidConnectionProviderAllowedVisibilities(
+        provider.allowedVisibilities,
+      )
     ) {
-      return [];
+      return [
+        {
+          code: ConnectionProviderExceptionCode.INVALID_CONNECTION_PROVIDER_INPUT,
+          message: t`Connection provider allowedVisibilities must contain unique user or workspace values`,
+          userFriendlyMessage: msg`Choose personal connections, workspace connections, or both for this provider.`,
+        },
+      ];
     }
 
-    return [
-      {
-        code: ConnectionProviderExceptionCode.INVALID_CONNECTION_PROVIDER_INPUT,
-        message: t`Connection provider allowedVisibilities must contain unique user or workspace values`,
-        userFriendlyMessage: msg`Choose personal connections, workspace connections, or both for this provider.`,
-      },
-    ];
+    // Settings only offer Add for workspace connections; drop this once a personal connection page exists.
+    if (!provider.allowedVisibilities.includes('workspace')) {
+      return [
+        {
+          code: ConnectionProviderExceptionCode.INVALID_CONNECTION_PROVIDER_INPUT,
+          message: t`Personal-only connection providers are not supported yet; include 'workspace'.`,
+          userFriendlyMessage: msg`Personal-only connection providers are not supported yet; include 'workspace'.`,
+        },
+      ];
+    }
+
+    return [];
   }
 }
