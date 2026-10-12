@@ -259,7 +259,7 @@ export const createGeometryTracker = (): GeometryTracker => {
       rootContainer,
       viewport: readViewportGeometry(),
     });
-    wakeSources.attachPortalLayerSources();
+    wakeSources.attachPortalLayerSources(element);
     wake();
   };
 
