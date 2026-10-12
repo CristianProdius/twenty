@@ -1,12 +1,12 @@
 import { type Meta, type StoryObj } from '@storybook/react-vite';
 import { expect, waitFor, within } from 'storybook/test';
-import { type ConnectedAccountVisibility } from 'twenty-shared/types';
 import { ComponentDecorator } from 'twenty-ui/testing';
 
 import { dispatchMetadataOperationBrowserEvent } from '@/browser-event/utils/dispatchMetadataOperationBrowserEvent';
 import {
   APPLICATION_ID,
   buildApplicationConnectionHandlers,
+  buildApplicationConnectionProvidersHandler,
 } from '~/pages/settings/applications/__stories__/mockedApplicationConnections';
 import { SettingsApplicationConnectionsSection } from '~/pages/settings/applications/tabs/SettingsApplicationConnectionsSection';
 import { MemoryRouterDecorator } from '~/testing/decorators/MemoryRouterDecorator';
@@ -45,17 +45,19 @@ export const WorkspaceConnections: Story = {
   },
 };
 
-const updatedChoices: ConnectedAccountVisibility[] = ['user', 'workspace'];
-
 export const RefreshesChoicesAfterAppUpdate: Story = {
-  beforeEach: () => {
-    updatedChoices.splice(0, updatedChoices.length, 'user', 'workspace');
-  },
   parameters: {
     msw: {
-      handlers: buildApplicationConnectionHandlers({
-        allowedVisibilities: updatedChoices,
-      }),
+      // The first providers request sees the original manifest, every later one the updated manifest.
+      handlers: [
+        buildApplicationConnectionProvidersHandler({
+          allowedVisibilities: ['user', 'workspace'],
+          once: true,
+        }),
+        ...buildApplicationConnectionHandlers({
+          allowedVisibilities: ['user'],
+        }),
+      ],
     },
   },
   play: async ({ canvasElement }) => {
@@ -64,7 +66,6 @@ export const RefreshesChoicesAfterAppUpdate: Story = {
     expect(
       await canvas.findByRole('button', { name: 'Add connection' }),
     ).toBeVisible();
-    updatedChoices.splice(0, updatedChoices.length, 'user');
     dispatchMetadataOperationBrowserEvent({
       metadataName: 'application',
       operation: {

@@ -11,13 +11,13 @@ export const APPLICATION_ID = '20202020-0000-4000-8000-000000000001';
 export const CONNECTED_ACCOUNT_ID = '20202020-0000-4000-8000-000000000002';
 const CONNECTION_PROVIDER_ID = '20202020-0000-4000-8000-000000000003';
 
-export const buildApplicationConnectionHandlers = ({
+export const buildApplicationConnectionProvidersHandler = ({
   allowedVisibilities,
-  visibility = 'workspace',
+  once = false,
 }: {
   allowedVisibilities: ConnectedAccountVisibility[];
-  visibility?: ConnectedAccountVisibility;
-}) => [
+  once?: boolean;
+}) =>
   graphql.query<ApplicationConnectionProvidersQuery>(
     'ApplicationConnectionProviders',
     () =>
@@ -41,7 +41,17 @@ export const buildApplicationConnectionHandlers = ({
           ],
         },
       }),
-  ),
+    { once },
+  );
+
+export const buildApplicationConnectionHandlers = ({
+  allowedVisibilities,
+  visibility = 'workspace',
+}: {
+  allowedVisibilities: ConnectedAccountVisibility[];
+  visibility?: ConnectedAccountVisibility;
+}) => [
+  buildApplicationConnectionProvidersHandler({ allowedVisibilities }),
   graphql.query<ApplicationConnectedAccountsQuery>(
     'ApplicationConnectedAccounts',
     () =>

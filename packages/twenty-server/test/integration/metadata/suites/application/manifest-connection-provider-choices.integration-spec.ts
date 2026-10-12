@@ -106,14 +106,8 @@ describe('Connection provider choices in application manifests', () => {
   }, 60000);
 
   describe.each(['create', 'update'] as const)('%s validation', (operation) => {
-    it.each([
-      { title: 'an empty list', value: [] },
-      { title: 'duplicate choices', value: ['user', 'user'] },
-      { title: 'an unknown choice', value: ['workspace', 'team'] },
-      { title: 'uppercase values', value: ['USER'] },
-      { title: 'a string', value: 'user' },
-      { title: 'null', value: null },
-    ])(
+    // Each invalid shape is covered by the isValidConnectionProviderAllowedVisibilities unit test.
+    it.each([{ title: 'an unknown choice', value: ['workspace', 'team'] }])(
       'rejects $title without changing the saved declaration',
       async ({ value }) => {
         if (operation === 'update') {

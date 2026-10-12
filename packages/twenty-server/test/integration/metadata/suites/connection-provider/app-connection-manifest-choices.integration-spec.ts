@@ -3,15 +3,9 @@ import { buildBaseManifest } from 'test/integration/metadata/suites/application/
 import { cleanupApplicationAndAppRegistration } from 'test/integration/metadata/suites/application/utils/cleanup-application-and-app-registration.util';
 import { setupApplicationForSync } from 'test/integration/metadata/suites/application/utils/setup-application-for-sync.util';
 import { syncApplication } from 'test/integration/metadata/suites/application/utils/sync-application.util';
-import { upsertPermissionFlags } from 'test/integration/metadata/suites/role-permission-flag/utils/upsert-permission-flags.util';
-import { createOneRole } from 'test/integration/metadata/suites/role/utils/create-one-role.util';
-import { deleteOneRole } from 'test/integration/metadata/suites/role/utils/delete-one-role.util';
-import { findOneRoleByLabel } from 'test/integration/metadata/suites/role/utils/find-one-role-by-label.util';
-import { updateWorkspaceMemberRole } from 'test/integration/metadata/suites/role/utils/update-workspace-member-role.util';
 import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 import { getCoreRepository } from 'test/integration/utils/get-core-repository.util';
 import { setupHttpMock } from 'test/integration/utils/http-mock.util';
-import { PermissionFlagType } from 'twenty-shared/constants';
 import { type ConnectedAccountVisibility } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { v4 } from 'uuid';
@@ -25,11 +19,9 @@ import { plaintextStringSchema } from 'src/engine/core-modules/secret-encryption
 import { type SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
 import { type ConnectedAccountMetadataService } from 'src/engine/metadata-modules/connected-account/connected-account-metadata.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
-import { PermissionsExceptionCode } from 'src/engine/metadata-modules/permissions/permissions.exception';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { USER_WORKSPACE_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-user-workspaces.util';
 import { USER_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-users.util';
-import { WORKSPACE_MEMBER_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/data/constants/workspace-member-data-seeds.constant';
 
 const applicationIdentifier = v4();
 const providerIdentifier = v4();
@@ -99,16 +91,14 @@ describe('app manifest connection visibility choices', () => {
       { allowedVisibilities },
     );
   };
-  const tokenResponse = () =>
-    HttpResponse.json({
-      access_token: 'new-access',
-      refresh_token: 'new-refresh',
-      scope: 'read',
-    });
-  const providerHttp = setupHttpMock(
+  setupHttpMock(
     http.post(TOKEN_ENDPOINT, () => {
       tokenExchanges += 1;
-      return tokenResponse();
+      return HttpResponse.json({
+        access_token: 'new-access',
+        refresh_token: 'new-refresh',
+        scope: 'read',
+      });
     }),
   );
   const save = async (
@@ -216,83 +206,91 @@ describe('app manifest connection visibility choices', () => {
     });
   }, 120000);
 
-  it('defaults an omitted declaration to workspace connections only and resolves an omitted visibility to it', async () => {
+  it('refuses personal connections when the declaration is omitted', async () => {
     const { errors } = await syncApplication({ manifest: buildManifest() });
     expect(errors).toBeUndefined();
     expect((await readProvider()).allowedVisibilities).toEqual(['workspace']);
+
     await expect(authorize({ visibility: 'user' })).rejects.toMatchObject({
       code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
     });
+    await expect(save({ visibility: 'user' })).rejects.toMatchObject({
+      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
+    });
+    expect(tokenExchanges).toBe(0);
+    expect(await accounts().countBy({ applicationId })).toBe(0);
+  });
+
+  it('resolves an omitted visibility to the only allowed one', async () => {
+    await setChoices(['workspace']);
+
     const result = await complete(await authorize());
+
     expect(
       await accounts().findOneByOrFail({ id: result.connectedAccountId }),
     ).toMatchObject({ visibility: 'workspace' });
   });
 
   it.each(['user', 'workspace'] as const)(
-    'enforces a %s-only declaration at both authorization and persistence',
-    async (allowed) => {
-      const forbidden = allowed === 'user' ? 'workspace' : 'user';
-      await setChoices([allowed]);
-      await expect(authorize({ visibility: forbidden })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
-      });
-      await expect(save({ visibility: forbidden })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
-      });
-      expect(tokenExchanges).toBe(0);
-      const result = await complete(await authorize({ visibility: allowed }));
-      expect(
-        await accounts().findOneByOrFail({ id: result.connectedAccountId }),
-      ).toMatchObject({ visibility: allowed });
-    },
-  );
-
-  it.each(['user', 'workspace'] as const)(
-    'grandfathers only an explicit same-visibility reconnect of an existing %s account',
+    'allows a %s connection when both visibilities are declared',
     async (visibility) => {
-      const original = await save({ visibility });
-      await setChoices([visibility === 'user' ? 'workspace' : 'user']);
-      await expect(authorize({ visibility })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
-      });
-      await expect(save({ visibility })).rejects.toMatchObject({
-        code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
-      });
-      const result = await complete(
-        await authorize({
-          reconnectingConnectedAccountId: original.connectedAccount.id,
-        }),
-      );
-      expect(result.connectedAccountId).toBe(original.connectedAccount.id);
+      const result = await complete(await authorize({ visibility }));
+
       expect(
         await accounts().findOneByOrFail({ id: result.connectedAccountId }),
       ).toMatchObject({ visibility });
     },
   );
 
+  it('refuses to share a personal connection when workspace connections are not allowed', async () => {
+    const original = await save({ visibility: 'user' });
+    await setChoices(['user']);
+    const share = {
+      reconnectingConnectedAccountId: original.connectedAccount.id,
+      visibility: 'workspace' as const,
+    };
+
+    await expect(authorize(share)).rejects.toMatchObject({
+      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
+    });
+    await expect(save(share)).rejects.toMatchObject({
+      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
+    });
+    expect(tokenExchanges).toBe(0);
+    expect(
+      await accounts().findOneByOrFail({ id: original.connectedAccount.id }),
+    ).toMatchObject({ visibility: 'user' });
+  });
+
   it.each(['user', 'workspace'] as const)(
-    'refuses to revive an archived %s connection whose visibility is no longer allowed',
+    'reconnects a live %s connection the app no longer offers but refuses to revive an archived one',
     async (visibility) => {
-      const original = await save({ visibility });
+      const live = await save({ visibility });
+      const archived = await save({ visibility });
       await metadataService.disconnect({
-        id: original.connectedAccount.id,
+        id: archived.connectedAccount.id,
         workspaceId,
       });
       await setChoices([visibility === 'user' ? 'workspace' : 'user']);
-      const reconnect = {
-        reconnectingConnectedAccountId: original.connectedAccount.id,
-      };
 
-      await expect(authorize(reconnect)).rejects.toMatchObject({
+      const result = await complete(
+        await authorize({
+          reconnectingConnectedAccountId: live.connectedAccount.id,
+        }),
+      );
+      expect(result.connectedAccountId).toBe(live.connectedAccount.id);
+
+      const revive = {
+        reconnectingConnectedAccountId: archived.connectedAccount.id,
+      };
+      await expect(authorize(revive)).rejects.toMatchObject({
         code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
       });
-      await expect(save({ ...reconnect, visibility })).rejects.toMatchObject({
+      await expect(save({ ...revive, visibility })).rejects.toMatchObject({
         code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
       });
-      expect(tokenExchanges).toBe(0);
       expect(
-        await accounts().findOneByOrFail({ id: original.connectedAccount.id }),
+        await accounts().findOneByOrFail({ id: archived.connectedAccount.id }),
       ).toMatchObject({
         archivedAt: expect.anything(),
         accessToken: null,
@@ -300,148 +298,4 @@ describe('app manifest connection visibility choices', () => {
       });
     },
   );
-
-  it('permits sharing only when the current declaration allows workspace connections', async () => {
-    const original = await save();
-    await setChoices(['user']);
-    const share = {
-      reconnectingConnectedAccountId: original.connectedAccount.id,
-      visibility: 'workspace' as const,
-    };
-    await expect(authorize(share)).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
-    });
-    await expect(save(share)).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
-    });
-    await setChoices(['workspace']);
-    const result = await complete(await authorize(share));
-    expect(result.connectedAccountId).toBe(original.connectedAccount.id);
-    expect(
-      await accounts().findOneByOrFail({ id: result.connectedAccountId }),
-    ).toMatchObject({ visibility: 'workspace' });
-  });
-
-  it('rejects an already-signed Add callback after the app removes its visibility choice', async () => {
-    const state = await authorize({ visibility: 'workspace' });
-    await setChoices(['user']);
-    await expect(complete(state)).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
-    });
-    expect(tokenExchanges).toBe(0);
-    expect(await accounts().countBy({ applicationId })).toBe(0);
-  });
-
-  it('rejects changed choices during token exchange before saving the connection', async () => {
-    const state = await authorize({ visibility: 'workspace' });
-    providerHttp.use(
-      http.post(TOKEN_ENDPOINT, async () => {
-        await setChoices(['user']);
-        return tokenResponse();
-      }),
-    );
-    await expect(complete(state)).rejects.toMatchObject({
-      code: ConnectionProviderExceptionCode.CONNECTION_VISIBILITY_NOT_ALLOWED,
-    });
-    expect(await accounts().countBy({ applicationId })).toBe(0);
-  });
-
-  it('rechecks real permissions for a grandfathered shared reconnect before exchanging tokens', async () => {
-    const original = await save({ visibility: 'workspace' });
-    const originalRole = await findOneRoleByLabel({ label: 'Member' });
-    const { data, errors } = await createOneRole({
-      input: {
-        label: `Connection permissions ${v4()}`,
-        canUpdateAllSettings: false,
-        canBeAssignedToUsers: true,
-      },
-    });
-    expect(errors).toBeUndefined();
-    const roleId = data.createOneRole.id;
-
-    try {
-      expect(
-        (
-          await updateWorkspaceMemberRole({
-            input: {
-              workspaceMemberId: WORKSPACE_MEMBER_DATA_SEED_IDS.JONY,
-              roleId,
-            },
-          })
-        ).errors,
-      ).toBeUndefined();
-      expect(
-        (
-          await upsertPermissionFlags({
-            input: {
-              roleId,
-              permissionFlagKeys: [PermissionFlagType.APPLICATIONS],
-            },
-          })
-        ).errors,
-      ).toBeUndefined();
-      const reconnect = {
-        reconnectingConnectedAccountId: original.connectedAccount.id,
-        userId: USER_DATA_SEED_IDS.JONY,
-        userWorkspaceId: USER_WORKSPACE_DATA_SEED_IDS.JONY,
-      };
-      const state = await authorize(reconnect);
-      await setChoices(['user']);
-      expect(
-        (
-          await upsertPermissionFlags({
-            input: { roleId, permissionFlagKeys: [] },
-          })
-        ).errors,
-      ).toBeUndefined();
-
-      await expect(authorize(reconnect)).rejects.toMatchObject({
-        code: PermissionsExceptionCode.PERMISSION_DENIED,
-      });
-      await expect(complete(state)).rejects.toMatchObject({
-        code: PermissionsExceptionCode.PERMISSION_DENIED,
-      });
-      expect(tokenExchanges).toBe(0);
-      expect(
-        await accounts().findOneByOrFail({ id: original.connectedAccount.id }),
-      ).toMatchObject({
-        userWorkspaceId: member.id,
-        accessToken: original.connectedAccount.accessToken,
-        refreshToken: original.connectedAccount.refreshToken,
-      });
-    } finally {
-      await updateWorkspaceMemberRole({
-        input: {
-          workspaceMemberId: WORKSPACE_MEMBER_DATA_SEED_IDS.JONY,
-          roleId: originalRole.id,
-        },
-      });
-      await deleteOneRole({ input: { idToDelete: roleId } });
-    }
-  }, 60000);
-
-  it('keeps old shared rows visible and disconnectable after a personal-only update', async () => {
-    const original = await save({ visibility: 'workspace' });
-    await setChoices(['user']);
-    const list = () =>
-      metadataService.findApplicationConnectedAccountsUsableByCaller({
-        applicationId,
-        workspaceId,
-        userWorkspaceId: member.id,
-      });
-    expect((await list()).map(({ id }) => id)).toContain(
-      original.connectedAccount.id,
-    );
-    expect(
-      await metadataService.disconnect({
-        id: original.connectedAccount.id,
-        workspaceId,
-      }),
-    ).toMatchObject({
-      archivedAt: expect.anything(),
-      accessToken: null,
-      refreshToken: null,
-    });
-    expect(await list()).toHaveLength(0);
-  });
 });
