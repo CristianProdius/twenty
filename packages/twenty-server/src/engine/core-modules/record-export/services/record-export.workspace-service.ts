@@ -477,6 +477,7 @@ export class RecordExportWorkspaceService {
         workspaceId: authContext.workspace.id,
         userWorkspaceId: authContext.userWorkspaceId,
         applicationId: undefined,
+        agentRoleRestriction: authContext.agentRoleRestriction,
         setting: PermissionFlagType.EXPORT_CSV,
       }))
     ) {
