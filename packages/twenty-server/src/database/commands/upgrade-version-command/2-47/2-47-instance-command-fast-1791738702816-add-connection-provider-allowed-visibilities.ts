@@ -6,10 +6,14 @@ import { type FastInstanceCommand } from 'src/engine/core-modules/upgrade/interf
 @RegisteredInstanceCommand('2.47.0', 1791738702816)
 export class AddConnectionProviderAllowedVisibilitiesFastInstanceCommand implements FastInstanceCommand {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('ALTER TABLE "core"."connectionProvider" ADD "allowedVisibilities" character varying array NOT NULL DEFAULT \'{user,workspace}\'');
+    await queryRunner.query(
+      'ALTER TABLE "core"."connectionProvider" ADD "allowedVisibilities" character varying array NOT NULL DEFAULT \'{workspace}\'',
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('ALTER TABLE "core"."connectionProvider" DROP COLUMN "allowedVisibilities"');
+    await queryRunner.query(
+      'ALTER TABLE "core"."connectionProvider" DROP COLUMN "allowedVisibilities"',
+    );
   }
 }

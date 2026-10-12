@@ -101,11 +101,13 @@ https://<your-twenty-server>/auth/apps/callback
 
 Set `allowedVisibilities` on each `defineConnectionProvider` declaration:
 
-| Declaration                                  | Connection choices                                                |
-| -------------------------------------------- | ----------------------------------------------------------------- |
-| `allowedVisibilities: ['user']`              | Personal connections, usable by the member who connected them.    |
-| `allowedVisibilities: ['workspace']`         | Connections shared with the workspace.                            |
-| `allowedVisibilities: ['user', 'workspace']` | Both choices. This is also the default when the field is omitted. |
+| Declaration                                  | Connection choices                                             |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| `allowedVisibilities: ['user']`              | Personal connections, usable by the member who connected them. |
+| `allowedVisibilities: ['workspace']`         | Connections shared with the workspace.                         |
+| `allowedVisibilities: ['user', 'workspace']` | Both choices.                                                  |
+
+Omitted means workspace only. Declare `['user']` or `['user', 'workspace']` to allow personal connections.
 
 The list must contain at least one supported value, without duplicates. Providers in the same app can declare different choices. These choices describe access to credentials; they do not change who can see records the app creates.
 
@@ -113,7 +115,7 @@ The current workspace app settings only offer **Add connection** for providers t
 
 The server checks the declaration when authorization starts and again before saving the credentials, including when the app updates during OAuth. Sharing an existing personal connection with the workspace also requires `workspace` to be allowed.
 
-Changing this declaration does not move, hide, or delete existing connections. Members who can manage an existing connection can still disconnect it or reconnect it with the same visibility, even when that visibility is no longer offered for new connections. A shared connection cannot become personal through reconnect. Removing `allowedVisibilities` from a later manifest restores both choices for new connections.
+Changing this declaration does not move, hide, or delete existing connections. Members who can manage an existing connection can still disconnect it or reconnect it with the same visibility, even when that visibility is no longer offered for new connections. A shared connection cannot become personal through reconnect. Removing `allowedVisibilities` from a later manifest restores the workspace-only default for new connections.
 
 </Accordion>
 

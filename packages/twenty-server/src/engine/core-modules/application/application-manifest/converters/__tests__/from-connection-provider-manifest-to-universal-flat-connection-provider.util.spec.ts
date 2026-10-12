@@ -38,7 +38,7 @@ describe('fromConnectionProviderManifestToUniversalFlatConnectionProvider', () =
       applicationUniversalIdentifier: APP_UID,
       name: 'linear',
       displayName: 'Linear',
-      allowedVisibilities: ['user', 'workspace'],
+      allowedVisibilities: ['workspace'],
       logo: null,
       type: 'oauth',
       oauthConfig: {

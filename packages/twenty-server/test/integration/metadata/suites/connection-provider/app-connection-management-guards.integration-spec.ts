@@ -105,6 +105,7 @@ describe('app connection management guards (e2e)', () => {
               name: 'slack',
               displayName: 'Slack',
               type: 'oauth',
+              allowedVisibilities: ['user', 'workspace'],
               oauth: {
                 authorizationEndpoint: 'https://slack.com/oauth/v2/authorize',
                 tokenEndpoint: 'https://slack.com/api/oauth.v2.access',

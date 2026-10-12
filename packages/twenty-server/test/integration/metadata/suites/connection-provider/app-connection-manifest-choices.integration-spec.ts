@@ -164,7 +164,7 @@ describe('app manifest connection visibility choices', () => {
     const { errors } = await syncApplication({ manifest: buildManifest() });
     expect(errors).toBeUndefined();
     const createdProvider = await readProvider();
-    expect(createdProvider.allowedVisibilities).toEqual(['user', 'workspace']);
+    expect(createdProvider.allowedVisibilities).toEqual(['workspace']);
     applicationId = createdProvider.applicationId;
     const encryption = getAppProviderByClassName<SecretEncryptionService>(
       'SecretEncryptionService',
@@ -209,18 +209,17 @@ describe('app manifest connection visibility choices', () => {
     });
   }, 120000);
 
-  it('defaults an omitted declaration to both choices and omitted authorization visibility to personal', async () => {
-    expect((await readProvider()).allowedVisibilities).toEqual([
-      'user',
-      'workspace',
-    ]);
-    const result = await complete(await authorize());
+  it('defaults an omitted declaration to workspace connections only', async () => {
+    const { errors } = await syncApplication({ manifest: buildManifest() });
+    expect(errors).toBeUndefined();
+    expect((await readProvider()).allowedVisibilities).toEqual(['workspace']);
+    await expect(authorize({ visibility: 'user' })).rejects.toMatchObject({
+      code: ConnectionProviderExceptionCode.INVALID_REQUEST,
+    });
+    const result = await complete(await authorize({ visibility: 'workspace' }));
     expect(
       await accounts().findOneByOrFail({ id: result.connectedAccountId }),
-    ).toMatchObject({ visibility: 'user' });
-    await expect(authorize({ visibility: 'workspace' })).resolves.toEqual(
-      expect.any(String),
-    );
+    ).toMatchObject({ visibility: 'workspace' });
   });
 
   it.each(['user', 'workspace'] as const)(

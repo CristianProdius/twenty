@@ -54,7 +54,7 @@ describe('Connection provider choices in application manifests', () => {
     });
   });
 
-  it('persists declarations and restores both choices when omitted on update', async () => {
+  it('persists declarations and restores the workspace-only default when omitted on update', async () => {
     const declarations: Array<ConnectedAccountVisibility[] | undefined> = [
       undefined,
       ['user'],
@@ -72,7 +72,7 @@ describe('Connection provider choices in application manifests', () => {
       const [provider] = await findConnectionProvidersByApplication(
         APPLICATION_IDENTIFIER,
       );
-      const expectedChoices = allowedVisibilities ?? ['user', 'workspace'];
+      const expectedChoices = allowedVisibilities ?? ['workspace'];
       expect(provider.allowedVisibilities).toEqual(expectedChoices);
 
       const result = await findApplicationConnectionProviders({
