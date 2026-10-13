@@ -1,7 +1,10 @@
 import { msg } from '@lingui/core/macro';
 import {
+  CAMPAIGN_VARIABLE_PATTERN,
+  type CampaignVariable,
   type EmailDocumentStringContext,
   isDefined,
+  parseCampaignVariable,
   parseCanonicalEmailDocument,
   parseJson,
 } from 'twenty-shared/utils';
@@ -13,7 +16,6 @@ import {
   EmailingDomainExceptionCode,
 } from 'src/engine/core-modules/emailing-domain/exceptions/emailing-domain.exception';
 import { type EmailingDomainEmailTemplate } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-email-template.type';
-import { CAMPAIGN_VARIABLE_PATTERN } from 'src/modules/emailing/constants/campaign-variable-pattern.constant';
 
 const CAMPAIGN_BATCH_TAG_PREFIXES = {
   htmlEscaped: 'v_h',
@@ -51,26 +53,34 @@ export const compileCampaignBatchTemplate = async ({
 }): Promise<{
   template: EmailingDomainEmailTemplate;
   plainTextSourceHtml: string;
-  variableNames: string[];
+  campaignVariables: CampaignVariable[];
 }> => {
-  const variableNames: string[] = [];
+  const campaignVariables: CampaignVariable[] = [];
 
-  const indexOfVariable = (variableName: string): number => {
-    const existingIndex = variableNames.indexOf(variableName);
+  const indexOfVariable = (campaignVariable: CampaignVariable): number => {
+    const existingIndex = campaignVariables.findIndex(
+      ({ name, fallback }) =>
+        name === campaignVariable.name &&
+        fallback === campaignVariable.fallback,
+    );
 
     if (existingIndex !== -1) {
       return existingIndex;
     }
 
-    return variableNames.push(variableName) - 1;
+    return campaignVariables.push(campaignVariable) - 1;
   };
 
   const toTags = (value: string, tagFamily: CampaignBatchTagFamily): string =>
-    value.replace(
-      CAMPAIGN_VARIABLE_PATTERN,
-      (_match, variableName) =>
-        `{{${CAMPAIGN_BATCH_TAG_PREFIXES[tagFamily]}_${indexOfVariable(variableName)}}}`,
-    );
+    value.replace(CAMPAIGN_VARIABLE_PATTERN, (variable) => {
+      const campaignVariable = parseCampaignVariable(variable);
+
+      if (!isDefined(campaignVariable)) {
+        return variable;
+      }
+
+      return `{{${CAMPAIGN_BATCH_TAG_PREFIXES[tagFamily]}_${indexOfVariable(campaignVariable)}}}`;
+    });
 
   const subject = toTags(subjectTemplate, 'raw');
 
@@ -78,7 +88,7 @@ export const compileCampaignBatchTemplate = async ({
     return {
       template: { subject, text: '', html: '' },
       plainTextSourceHtml: '',
-      variableNames,
+      campaignVariables,
     };
   }
 
@@ -115,6 +125,6 @@ export const compileCampaignBatchTemplate = async ({
     plainTextSourceHtml: isDefined(plainTextSourceHtml)
       ? plainTextSourceHtml
       : '',
-    variableNames,
+    campaignVariables,
   };
 };

@@ -1,5 +1,6 @@
 import { msg } from '@lingui/core/macro';
 import {
+  type EmailDocumentStringContext,
   isDefined,
   parseCanonicalEmailDocument,
   parseJson,
@@ -12,7 +13,18 @@ import {
   EmailingDomainException,
   EmailingDomainExceptionCode,
 } from 'src/engine/core-modules/emailing-domain/exceptions/emailing-domain.exception';
+import { escapeHtml } from 'src/engine/core-modules/emailing-domain/utils/escape-html.util';
 import { renderCampaignTemplate } from 'src/modules/emailing/utils/render-campaign-template.util';
+
+const VALUE_ENCODER_BY_CONTEXT: Record<
+  EmailDocumentStringContext,
+  (value: string) => string
+> = {
+  html: escapeHtml,
+  rawHtml: escapeHtml,
+  text: (value) => value,
+  url: encodeURIComponent,
+};
 
 export const compileCampaignEmailContent = async (
   bodyTemplate: string,
@@ -38,7 +50,7 @@ export const compileCampaignEmailContent = async (
     isDefined(variables)
       ? resolveEmailDocumentBindings(parseResult.document, (value, context) =>
           renderCampaignTemplate(value, variables, {
-            escapeValues: context === 'html' || context === 'rawHtml',
+            encodeValue: VALUE_ENCODER_BY_CONTEXT[context],
           }),
         )
       : parseResult.document,

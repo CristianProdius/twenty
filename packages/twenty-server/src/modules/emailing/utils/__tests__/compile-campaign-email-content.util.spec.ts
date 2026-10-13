@@ -133,6 +133,23 @@ describe('compileCampaignEmailContent', () => {
     );
   });
 
+  it('should percent-encode a URL fallback like the real send does', async () => {
+    await compileCampaignEmailContent(
+      serializeDocument([
+        {
+          type: 'button',
+          attrs: { href: '{{website | default: "https://twenty.com/a b"}}' },
+          content: [{ type: 'text', text: 'Open' }],
+        },
+      ]),
+      VARIABLES,
+    );
+
+    expect(compiledDocument().content[0].attrs.href).toBe(
+      'https%3A%2F%2Ftwenty.com%2Fa%20b',
+    );
+  });
+
   it('should substitute variables inside image link URLs', async () => {
     await compileCampaignEmailContent(
       serializeDocument([
