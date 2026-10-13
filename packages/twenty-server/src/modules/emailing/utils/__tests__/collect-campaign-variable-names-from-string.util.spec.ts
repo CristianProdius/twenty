@@ -16,6 +16,7 @@ describe('collectCampaignVariableNamesFromString', () => {
     '{{jobTitle | default: there}}',
     "{{jobTitle | default: 'there'}}",
     '{{jobTitle | default: “there”}}',
+    '{{jobTitle | default: {there}}}',
   ])('should reject the near-miss variable %s', (variable) => {
     expect(() =>
       collectCampaignVariableNamesFromString(`Hi ${variable}, welcome`),

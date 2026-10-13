@@ -39,6 +39,9 @@ describe('parseVariableWithFallback', () => {
     expect(
       parseVariableWithFallback('{{jobTitle | default: “there”}}'),
     ).toBeUndefined();
+    expect(
+      parseVariableWithFallback('{{jobTitle | default: {there}}}'),
+    ).toBeUndefined();
   });
 
   it('should reject anything that is not exactly one variable', () => {

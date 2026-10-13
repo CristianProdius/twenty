@@ -1,3 +1,4 @@
+import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined, type VariableWithFallback } from 'twenty-shared/utils';
 
 export const resolveCampaignVariableValue = ({
@@ -11,5 +12,7 @@ export const resolveCampaignVariableValue = ({
     ? (variables[name] ?? '')
     : '';
 
-  return isDefined(fallback) && value.trim() === '' ? fallback : value;
+  return isDefined(fallback) && !isNonEmptyString(value.trim())
+    ? fallback
+    : value;
 };
