@@ -131,7 +131,7 @@ export const useTextVariableEditor = ({
           return true;
         }
 
-        const pastesLines = multiline === true && plainText.includes('\n');
+        const pastesLines = multiline && plainText.includes('\n');
         const pastesVariables =
           !plainText.includes('\n') &&
           isDefined(plainText.match(variableTagPattern));
