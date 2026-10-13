@@ -46,7 +46,10 @@ export const VariableListPicker: VariablePickerComponent = ({
   const { variables, formatVariable } = pickerContext;
 
   return (
-    <DropdownRoot dropdownId={`variable-list-picker-${instanceId}`} type="picker">
+    <DropdownRoot
+      dropdownId={`variable-list-picker-${instanceId}`}
+      type="picker"
+    >
       <Dropdown.Trigger
         aria-label={t`Insert variable`}
         nativeButton={false}
