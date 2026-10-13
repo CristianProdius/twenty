@@ -5,10 +5,13 @@ import {
   type VariableWithFallback,
 } from 'twenty-shared/utils';
 
-export const replaceCampaignVariables = (
-  template: string,
-  replaceCampaignVariable: (campaignVariable: VariableWithFallback) => string,
-): string =>
+export const replaceCampaignVariables = ({
+  template,
+  replaceCampaignVariable,
+}: {
+  template: string;
+  replaceCampaignVariable: (campaignVariable: VariableWithFallback) => string;
+}): string =>
   template.replace(VARIABLE_WITH_FALLBACK_PATTERN, (variable) => {
     const campaignVariable = parseVariableWithFallback(variable);
 
