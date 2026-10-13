@@ -24,6 +24,7 @@ import { TooltipDelay } from '@/ui/layout/tooltip/constants/TooltipDelay';
 const StyledWrapper = styled.span`
   display: inline-block;
   padding-inline: ${themeCssVariables.spacing[0.5]};
+  white-space: nowrap;
 `;
 
 const StyledMissingFallbackIcon = styled.span`
@@ -68,9 +69,13 @@ export const VariableWithFallbackChip = ({
   };
 
   return (
-    <NodeViewWrapper as={StyledWrapper} style={{ whiteSpace: 'nowrap' }}>
+    <NodeViewWrapper as={StyledWrapper}>
       <DropdownRoot dropdownId={dropdownId} type="panel">
-        <Dropdown.Trigger render={<span />} nativeButton={false} tabIndex={-1}>
+        <Dropdown.Trigger
+          render={<span />}
+          nativeButton={false}
+          aria-label={t`Edit fallback value`}
+        >
           <BaseChip
             label={`{{${variableWithFallback.name}}}`}
             title={variable}

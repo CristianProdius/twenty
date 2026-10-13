@@ -131,7 +131,12 @@ export const useTextVariableEditor = ({
           return true;
         }
 
-        if (multiline && plainText.includes('\n')) {
+        const pastesLines = multiline === true && plainText.includes('\n');
+        const pastesVariables =
+          !plainText.includes('\n') &&
+          isDefined(plainText.match(variableTagPattern));
+
+        if (pastesLines || pastesVariables) {
           const docNode = schema.nodeFromJSON(
             getInitialEditorContent(plainText, variableTagPattern),
           );
