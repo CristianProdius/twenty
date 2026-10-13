@@ -1,11 +1,11 @@
 import { isNonEmptyString } from '@sniptt/guards';
 
-import { type VariableWithFallback } from './variable-with-fallback';
+import { type TemplateVariableWithFallback } from './template-variable-with-fallback';
 
-export const formatVariableWithFallback = ({
+export const formatTemplateVariableWithFallback = ({
   name,
   fallback,
-}: VariableWithFallback): string =>
+}: TemplateVariableWithFallback): string =>
   isNonEmptyString(fallback)
     ? `{{${name} | default: "${fallback.replace(/["\\]/g, '\\$&')}"}}`
     : `{{${name}}}`;

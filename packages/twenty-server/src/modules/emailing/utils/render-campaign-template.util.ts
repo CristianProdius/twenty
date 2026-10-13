@@ -10,6 +10,9 @@ export const renderCampaignTemplate = (
     template,
     replaceCampaignVariable: (campaignVariable) =>
       encodeValue(
-        resolveCampaignVariableValue({ variables, campaignVariable }),
+        resolveCampaignVariableValue({
+          valuesByVariableName: variables,
+          campaignVariable,
+        }),
       ),
   });

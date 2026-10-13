@@ -1,8 +1,8 @@
 import { msg } from '@lingui/core/macro';
 import {
   isDefined,
-  parseVariableWithFallback,
-  VARIABLE_WITH_FALLBACK_PATTERN,
+  parseTemplateVariableWithFallback,
+  TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
 } from 'twenty-shared/utils';
 
 import {
@@ -22,15 +22,18 @@ export const collectCampaignVariableNamesFromString = (
     return names;
   }
 
-  for (const [variable] of value.matchAll(VARIABLE_WITH_FALLBACK_PATTERN)) {
-    const campaignVariable = parseVariableWithFallback(variable);
+  for (const [rawTemplateVariable] of value.matchAll(
+    TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
+  )) {
+    const campaignVariable =
+      parseTemplateVariableWithFallback(rawTemplateVariable);
 
     if (!isDefined(campaignVariable)) {
       throw new EmailingDomainException(
-        `Malformed campaign variable: ${variable}. Expected ${CAMPAIGN_VARIABLE_SYNTAX}`,
+        `Malformed campaign variable: ${rawTemplateVariable}. Expected ${CAMPAIGN_VARIABLE_SYNTAX}`,
         EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_NOT_SENDABLE,
         {
-          userFriendlyMessage: msg`This campaign has a variable written in the wrong format: ${variable}. Write it as ${CAMPAIGN_VARIABLE_SYNTAX}.`,
+          userFriendlyMessage: msg`This campaign has a variable written in the wrong format: ${rawTemplateVariable}. Write it as ${CAMPAIGN_VARIABLE_SYNTAX}.`,
         },
       );
     }

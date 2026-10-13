@@ -1,8 +1,8 @@
 import {
   isDefined,
-  parseVariableWithFallback,
-  VARIABLE_WITH_FALLBACK_PATTERN,
-  type VariableWithFallback,
+  parseTemplateVariableWithFallback,
+  TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
+  type TemplateVariableWithFallback,
 } from 'twenty-shared/utils';
 
 export const replaceCampaignVariables = ({
@@ -10,14 +10,20 @@ export const replaceCampaignVariables = ({
   replaceCampaignVariable,
 }: {
   template: string;
-  replaceCampaignVariable: (campaignVariable: VariableWithFallback) => string;
+  replaceCampaignVariable: (
+    campaignVariable: TemplateVariableWithFallback,
+  ) => string;
 }): string =>
-  template.replace(VARIABLE_WITH_FALLBACK_PATTERN, (variable) => {
-    const campaignVariable = parseVariableWithFallback(variable);
+  template.replace(
+    TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
+    (rawTemplateVariable) => {
+      const campaignVariable =
+        parseTemplateVariableWithFallback(rawTemplateVariable);
 
-    if (!isDefined(campaignVariable)) {
-      return variable;
-    }
+      if (!isDefined(campaignVariable)) {
+        return rawTemplateVariable;
+      }
 
-    return replaceCampaignVariable(campaignVariable);
-  });
+      return replaceCampaignVariable(campaignVariable);
+    },
+  );

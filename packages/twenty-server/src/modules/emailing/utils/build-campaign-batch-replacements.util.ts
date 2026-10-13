@@ -1,4 +1,4 @@
-import { type VariableWithFallback } from 'twenty-shared/utils';
+import { type TemplateVariableWithFallback } from 'twenty-shared/utils';
 
 import { escapeHtml } from 'src/engine/core-modules/emailing-domain/utils/escape-html.util';
 import { resolveCampaignVariableValue } from 'src/modules/emailing/utils/resolve-campaign-variable-value.util';
@@ -7,14 +7,14 @@ export const buildCampaignBatchReplacements = ({
   campaignVariables,
   variables,
 }: {
-  campaignVariables: VariableWithFallback[];
+  campaignVariables: TemplateVariableWithFallback[];
   variables: Record<string, string>;
 }): Record<string, string> => {
   const replacements: Record<string, string> = {};
 
   for (const [index, campaignVariable] of campaignVariables.entries()) {
     const value = resolveCampaignVariableValue({
-      variables,
+      valuesByVariableName: variables,
       campaignVariable,
     });
 

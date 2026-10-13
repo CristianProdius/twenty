@@ -4,7 +4,7 @@ import {
   isDefined,
   parseCanonicalEmailDocument,
   parseJson,
-  type VariableWithFallback,
+  type TemplateVariableWithFallback,
 } from 'twenty-shared/utils';
 
 import { compileOutboundEmailContent } from 'src/engine/core-modules/email/utils/compile-outbound-email-content.util';
@@ -52,11 +52,13 @@ export const compileCampaignBatchTemplate = async ({
 }): Promise<{
   template: EmailingDomainEmailTemplate;
   plainTextSourceHtml: string;
-  campaignVariables: VariableWithFallback[];
+  campaignVariables: TemplateVariableWithFallback[];
 }> => {
-  const campaignVariables: VariableWithFallback[] = [];
+  const campaignVariables: TemplateVariableWithFallback[] = [];
 
-  const indexOfVariable = (campaignVariable: VariableWithFallback): number => {
+  const indexOfCampaignVariable = (
+    campaignVariable: TemplateVariableWithFallback,
+  ): number => {
     const existingIndex = campaignVariables.findIndex(
       ({ name, fallback }) =>
         name === campaignVariable.name &&
@@ -74,7 +76,7 @@ export const compileCampaignBatchTemplate = async ({
     replaceCampaignVariables({
       template: value,
       replaceCampaignVariable: (campaignVariable) =>
-        `{{${CAMPAIGN_BATCH_TAG_PREFIXES[tagFamily]}_${indexOfVariable(campaignVariable)}}}`,
+        `{{${CAMPAIGN_BATCH_TAG_PREFIXES[tagFamily]}_${indexOfCampaignVariable(campaignVariable)}}}`,
     });
 
   const subject = toTags(subjectTemplate, 'raw');
