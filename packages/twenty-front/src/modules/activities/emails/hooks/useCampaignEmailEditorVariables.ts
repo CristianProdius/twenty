@@ -1,6 +1,6 @@
 import { activeEmailCampaignIdState } from '@/activities/emails/states/activeEmailCampaignIdState';
 import { activeEmailEditorState } from '@/activities/emails/states/activeEmailEditorState';
-import { findVariableFallback } from '@/advanced-text-editor/utils/findVariableFallback';
+import { findTemplateVariableFallback } from '@/advanced-text-editor/utils/findTemplateVariableFallback';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { recordStoreFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreFamilySelector';
 import { useAtomFamilySelectorValue } from '@/ui/utilities/state/jotai/hooks/useAtomFamilySelectorValue';
@@ -9,7 +9,7 @@ import { useLingui } from '@lingui/react/macro';
 import { isString } from '@sniptt/guards';
 import { CoreObjectNameSingular } from 'twenty-shared/types';
 import {
-  formatVariableWithFallback,
+  formatTemplateVariableWithFallback,
   listCampaignVariablesForFields,
 } from 'twenty-shared/utils';
 
@@ -34,15 +34,15 @@ export const useCampaignEmailEditorVariables = () => {
     { label: t`Person ID`, name: 'personId' },
   ];
 
-  const formatVariableWithExistingFallback = (name: string) =>
-    formatVariableWithFallback({
+  const formatTemplateVariableWithExistingFallback = (name: string) =>
+    formatTemplateVariableWithFallback({
       name,
-      fallback: findVariableFallback({
+      fallback: findTemplateVariableFallback({
         rawContent: isString(subject) ? subject : '',
         editorContent: activeEmailEditor?.getJSON(),
         name,
       }),
     });
 
-  return { variables, formatVariableWithExistingFallback };
+  return { variables, formatTemplateVariableWithExistingFallback };
 };

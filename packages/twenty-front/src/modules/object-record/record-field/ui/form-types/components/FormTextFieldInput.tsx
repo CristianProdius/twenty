@@ -22,7 +22,7 @@ type FormTextFieldInputProps = {
   placeholder?: string;
   VariablePicker?: VariablePickerComponent;
   ariaLabel?: string;
-  enableVariableFallback?: boolean;
+  enableTemplateVariableFallback?: boolean;
 };
 
 export const FormTextFieldInput = ({
@@ -37,7 +37,7 @@ export const FormTextFieldInput = ({
   readonly,
   VariablePicker,
   ariaLabel,
-  enableVariableFallback,
+  enableTemplateVariableFallback,
 }: FormTextFieldInputProps) => {
   const instanceId = useId();
   const labelId = `${instanceId}-label`;
@@ -49,7 +49,7 @@ export const FormTextFieldInput = ({
     defaultValue,
     ariaLabelledBy: label ? labelId : undefined,
     ariaLabel,
-    enableVariableFallback,
+    enableTemplateVariableFallback,
     onUpdate: (editor) => {
       const jsonContent = editor.getJSON();
       const parsedContent = parseEditorContent(jsonContent);

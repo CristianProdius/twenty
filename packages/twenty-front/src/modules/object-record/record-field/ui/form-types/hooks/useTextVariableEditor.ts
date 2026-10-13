@@ -1,4 +1,4 @@
-import { VariableWithFallbackTag } from '@/advanced-text-editor/extensions/variable-tag/VariableWithFallbackTag';
+import { TemplateVariableWithFallbackTag } from '@/advanced-text-editor/extensions/variable-tag/TemplateVariableWithFallbackTag';
 import { getInitialEditorContent } from '@/advanced-text-editor/utils/getInitialEditorContent';
 import { WorkflowVariableTag } from '@/workflow/workflow-variables/extensions/WorkflowVariableTag';
 import Document from '@tiptap/extension-document';
@@ -14,7 +14,7 @@ import { useEffect } from 'react';
 import {
   isDefined,
   parseJson,
-  VARIABLE_WITH_FALLBACK_PATTERN,
+  TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
 } from 'twenty-shared/utils';
 import { CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX } from 'twenty-shared/workflow';
 import { type JsonValue } from 'type-fest';
@@ -27,7 +27,7 @@ type UseTextVariableEditorProps = {
   onUpdate: (editor: Editor) => void;
   ariaLabelledBy?: string;
   ariaLabel?: string;
-  enableVariableFallback?: boolean;
+  enableTemplateVariableFallback?: boolean;
 };
 
 const isJsonObject = (text: string): boolean => {
@@ -47,13 +47,13 @@ export const useTextVariableEditor = ({
   onUpdate,
   ariaLabelledBy,
   ariaLabel,
-  enableVariableFallback = false,
+  enableTemplateVariableFallback = false,
 }: UseTextVariableEditorProps) => {
-  const variableTagExtension = enableVariableFallback
-    ? VariableWithFallbackTag
+  const variableTagExtension = enableTemplateVariableFallback
+    ? TemplateVariableWithFallbackTag
     : WorkflowVariableTag;
-  const variableTagPattern = enableVariableFallback
-    ? VARIABLE_WITH_FALLBACK_PATTERN
+  const variableTagPattern = enableTemplateVariableFallback
+    ? TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN
     : CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX;
 
   const editor = useEditor({
@@ -131,12 +131,16 @@ export const useTextVariableEditor = ({
           return true;
         }
 
-        const pastesLines = multiline && plainText.includes('\n');
-        const pastesVariables =
+        const isMultilinePasteIntoMultilineEditor =
+          multiline && plainText.includes('\n');
+        const isSingleLinePasteWithVariableTags =
           !plainText.includes('\n') &&
           isDefined(plainText.match(variableTagPattern));
 
-        if (pastesLines || pastesVariables) {
+        if (
+          isMultilinePasteIntoMultilineEditor ||
+          isSingleLinePasteWithVariableTags
+        ) {
           const docNode = schema.nodeFromJSON(
             getInitialEditorContent(plainText, variableTagPattern),
           );

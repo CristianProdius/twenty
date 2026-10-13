@@ -1,8 +1,8 @@
 import type { JSONContent } from '@tiptap/react';
 
-import { findVariableFallback } from '@/advanced-text-editor/utils/findVariableFallback';
+import { findTemplateVariableFallback } from '@/advanced-text-editor/utils/findTemplateVariableFallback';
 
-const buildEditorContent = (variables: string[]): JSONContent => ({
+const buildEditorContent = (rawTemplateVariables: string[]): JSONContent => ({
   type: 'doc',
   content: [
     {
@@ -10,9 +10,9 @@ const buildEditorContent = (variables: string[]): JSONContent => ({
       content: [
         {
           type: 'paragraph',
-          content: variables.map((variable) => ({
+          content: rawTemplateVariables.map((rawTemplateVariable) => ({
             type: 'variableTag',
-            attrs: { variable },
+            attrs: { variable: rawTemplateVariable },
           })),
         },
       ],
@@ -20,10 +20,10 @@ const buildEditorContent = (variables: string[]): JSONContent => ({
   ],
 });
 
-describe('findVariableFallback', () => {
+describe('findTemplateVariableFallback', () => {
   it('should prefer the raw content fallback over a different editor content fallback', () => {
     expect(
-      findVariableFallback({
+      findTemplateVariableFallback({
         rawContent: 'Hi {{name.firstName | default: "there"}}',
         editorContent: buildEditorContent([
           '{{name.firstName | default: "friend"}}',
@@ -35,7 +35,7 @@ describe('findVariableFallback', () => {
 
   it('should find a fallback on a chip nested in the editor content', () => {
     expect(
-      findVariableFallback({
+      findTemplateVariableFallback({
         rawContent: 'Hi {{name.firstName}}',
         editorContent: buildEditorContent([
           '{{jobTitle | default: "builder"}}',

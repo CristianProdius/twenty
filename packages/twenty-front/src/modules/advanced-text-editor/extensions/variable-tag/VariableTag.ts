@@ -1,7 +1,7 @@
 import { VariableTagChip } from '@/advanced-text-editor/extensions/variable-tag/VariableTagChip';
 import { Node } from '@tiptap/core';
 import { mergeAttributes, ReactNodeViewRenderer } from '@tiptap/react';
-import { parseVariableWithFallback } from 'twenty-shared/utils';
+import { parseTemplateVariableWithFallback } from 'twenty-shared/utils';
 import { extractRawVariableNamePart } from 'twenty-shared/workflow';
 
 declare module '@tiptap/core' {
@@ -44,7 +44,8 @@ export const VariableTag = Node.create({
         class: 'variable-tag',
       }),
       extractRawVariableNamePart({
-        rawVariableName: parseVariableWithFallback(variable)?.name ?? variable,
+        rawVariableName:
+          parseTemplateVariableWithFallback(variable)?.name ?? variable,
         part: 'selectedField',
       }),
     ];

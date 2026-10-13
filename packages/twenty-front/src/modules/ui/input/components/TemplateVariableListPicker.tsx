@@ -7,13 +7,13 @@ import { IconVariable, IconVariablePlus } from 'twenty-ui/icon';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme';
 
 import { SelectOptionIcon } from '@/ui/input/components/SelectOptionIcon';
-import { VariableListPickerContext } from '@/ui/input/contexts/VariableListPickerContext';
+import { TemplateVariableListPickerContext } from '@/ui/input/contexts/TemplateVariableListPickerContext';
 import { type VariablePickerComponent } from '@/ui/input/types/VariablePickerComponent';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownRoot } from '@/ui/layout/dropdown/components/DropdownRoot';
 import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
 
-const StyledVariableListPickerContainer = styled.div`
+const StyledTemplateVariableListPickerContainer = styled.div`
   align-items: center;
   background-color: ${themeCssVariables.background.transparent.lighter};
   border: 1px solid ${themeCssVariables.border.color.medium};
@@ -30,31 +30,34 @@ const StyledVariableListPickerContainer = styled.div`
   }
 `;
 
-export const VariableListPicker: VariablePickerComponent = ({
+export const TemplateVariableListPicker: VariablePickerComponent = ({
   instanceId,
   disabled,
   onVariableSelect,
 }) => {
   const { t } = useLingui();
   const theme = useTheme();
-  const pickerContext = useContext(VariableListPickerContext);
+  const templateVariableListPickerContext = useContext(
+    TemplateVariableListPickerContext,
+  );
 
-  if (!isDefined(pickerContext)) {
+  if (!isDefined(templateVariableListPickerContext)) {
     return null;
   }
 
-  const { variables, formatVariable } = pickerContext;
+  const { variables, formatTemplateVariable } =
+    templateVariableListPickerContext;
 
   return (
     <DropdownRoot
-      dropdownId={`variable-list-picker-${instanceId}`}
+      dropdownId={`template-variable-list-picker-${instanceId}`}
       type="picker"
     >
       <Dropdown.Trigger
         aria-label={t`Insert variable`}
         nativeButton={false}
         disabled={disabled}
-        render={<StyledVariableListPickerContainer />}
+        render={<StyledTemplateVariableListPickerContainer />}
       >
         <IconVariablePlus size={theme.icon.size.md} />
       </Dropdown.Trigger>
@@ -68,7 +71,7 @@ export const VariableListPicker: VariablePickerComponent = ({
             <Dropdown.OptionItem
               key={name}
               startIcon={<SelectOptionIcon Icon={IconVariable} />}
-              onSelect={() => onVariableSelect(formatVariable(name))}
+              onSelect={() => onVariableSelect(formatTemplateVariable(name))}
             >
               {label}
             </Dropdown.OptionItem>

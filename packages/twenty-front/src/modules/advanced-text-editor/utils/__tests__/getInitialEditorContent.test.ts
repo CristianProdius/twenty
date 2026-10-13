@@ -1,5 +1,5 @@
 import { getInitialEditorContent } from '@/advanced-text-editor/utils/getInitialEditorContent';
-import { VARIABLE_WITH_FALLBACK_PATTERN } from 'twenty-shared/utils';
+import { TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN } from 'twenty-shared/utils';
 
 describe('getInitialEditorContent', () => {
   it('should handle single line text', () => {
@@ -289,7 +289,7 @@ describe('getInitialEditorContent', () => {
     expect(
       getInitialEditorContent(
         `For ${variable} only`,
-        VARIABLE_WITH_FALLBACK_PATTERN,
+        TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
       ).content?.[0]?.content,
     ).toEqual([
       { type: 'text', text: 'For ' },

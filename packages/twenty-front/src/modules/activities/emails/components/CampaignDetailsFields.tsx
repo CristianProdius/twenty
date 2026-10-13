@@ -23,8 +23,8 @@ import { FormSingleRecordPicker } from '@/object-record/record-field/ui/form-typ
 import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/components/FormTextFieldInput';
 import { useMyMessageChannels } from '@/settings/accounts/hooks/useMyMessageChannels';
 import { Select } from '@/ui/input/components/Select';
-import { VariableListPicker } from '@/ui/input/components/VariableListPicker';
-import { VariableListPickerContext } from '@/ui/input/contexts/VariableListPickerContext';
+import { TemplateVariableListPicker } from '@/ui/input/components/TemplateVariableListPicker';
+import { TemplateVariableListPickerContext } from '@/ui/input/contexts/TemplateVariableListPickerContext';
 
 const StyledWarningContainer = styled.div`
   margin-top: ${themeCssVariables.spacing[2]};
@@ -42,7 +42,7 @@ export const CampaignDetailsFields = ({
   const detailsState = useCampaignDetailsState({ campaign });
   const { channels } = useMyMessageChannels();
   const { unsubscribeTopics } = useUnsubscribeTopics();
-  const { variables, formatVariableWithExistingFallback } =
+  const { variables, formatTemplateVariableWithExistingFallback } =
     useCampaignEmailEditorVariables();
   const { createOneRecord: createMessageList } = useCreateOneRecord({
     objectNameSingular: CoreObjectNameSingular.MessageList,
@@ -125,10 +125,10 @@ export const CampaignDetailsFields = ({
         </CampaignEnvelopeRow>
       )}
       <CampaignEnvelopeRow label={t`Subject`}>
-        <VariableListPickerContext.Provider
+        <TemplateVariableListPickerContext.Provider
           value={{
             variables,
-            formatVariable: formatVariableWithExistingFallback,
+            formatTemplateVariable: formatTemplateVariableWithExistingFallback,
           }}
         >
           <FormTextFieldInput
@@ -137,10 +137,10 @@ export const CampaignDetailsFields = ({
             placeholder={t`Enter email subject`}
             defaultValue={detailsState.subject}
             onChange={detailsState.setSubject}
-            VariablePicker={VariableListPicker}
-            enableVariableFallback
+            VariablePicker={TemplateVariableListPicker}
+            enableTemplateVariableFallback
           />
-        </VariableListPickerContext.Provider>
+        </TemplateVariableListPickerContext.Provider>
       </CampaignEnvelopeRow>
     </CampaignEnvelopeBox>
   );

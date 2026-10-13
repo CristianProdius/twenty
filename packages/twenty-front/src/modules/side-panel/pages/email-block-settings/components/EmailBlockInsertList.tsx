@@ -48,13 +48,13 @@ type EmailBlockInsertListProps = {
 export const EmailBlockInsertList = ({ editor }: EmailBlockInsertListProps) => {
   const { i18n, t } = useLingui();
   const imageFileInputRef = useRef<HTMLInputElement>(null);
-  const { variables, formatVariableWithExistingFallback } =
+  const { variables, formatTemplateVariableWithExistingFallback } =
     useCampaignEmailEditorVariables();
   const variablesWithExistingFallback = useLiveEditorState(editor, () =>
     variables.map(({ label, name }) => ({
       label,
       name,
-      variable: formatVariableWithExistingFallback(name),
+      rawTemplateVariable: formatTemplateVariableWithExistingFallback(name),
     })),
   );
   const { uploadEmailImage } = useUploadEmailImage();
@@ -170,17 +170,18 @@ export const EmailBlockInsertList = ({ editor }: EmailBlockInsertListProps) => {
           <SidePanelWorkflowSelectStepTitle>
             {t`Variables`}
           </SidePanelWorkflowSelectStepTitle>
-          {variablesWithExistingFallback.map(({ label, name, variable }) =>
-            renderDraggableItem({
-              id: name,
-              Icon: IconVariable,
-              iconColor: themeCssVariables.color.blue9,
-              label,
-              content: {
-                type: TIPTAP_NODE_TYPES.VARIABLE_TAG,
-                attrs: { variable },
-              },
-            }),
+          {variablesWithExistingFallback.map(
+            ({ label, name, rawTemplateVariable }) =>
+              renderDraggableItem({
+                id: name,
+                Icon: IconVariable,
+                iconColor: themeCssVariables.color.blue9,
+                label,
+                content: {
+                  type: TIPTAP_NODE_TYPES.VARIABLE_TAG,
+                  attrs: { variable: rawTemplateVariable },
+                },
+              }),
           )}
         </>
       )}

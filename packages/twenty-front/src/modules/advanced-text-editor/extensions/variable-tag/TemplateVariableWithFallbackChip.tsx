@@ -4,9 +4,9 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
 import { useId } from 'react';
 import {
-  formatVariableWithFallback,
+  formatTemplateVariableWithFallback,
   isDefined,
-  parseVariableWithFallback,
+  parseTemplateVariableWithFallback,
 } from 'twenty-shared/utils';
 import { Dropdown } from 'twenty-ui/components/navigation';
 import { IconAlertTriangle } from 'twenty-ui/icon';
@@ -31,40 +31,46 @@ const StyledMissingFallbackIcon = styled.span`
   display: flex;
 `;
 
-type VariableWithFallbackChipProps = NodeViewProps;
+type TemplateVariableWithFallbackChipProps = NodeViewProps;
 
-export const VariableWithFallbackChip = ({
+export const TemplateVariableWithFallbackChip = ({
   deleteNode,
   editor,
   node,
   updateAttributes,
-}: VariableWithFallbackChipProps) => {
+}: TemplateVariableWithFallbackChipProps) => {
   const { t } = useLingui();
   const theme = useTheme();
-  const dropdownId = `variable-fallback-dropdown-${useId()}`;
+  const dropdownId = `template-variable-fallback-dropdown-${useId()}`;
   const { closeDropdown } = useCloseDropdown();
 
-  const variable =
+  const rawTemplateVariable =
     typeof node.attrs.variable === 'string' ? node.attrs.variable : '';
-  const variableWithFallback = parseVariableWithFallback(variable);
+  const templateVariableWithFallback =
+    parseTemplateVariableWithFallback(rawTemplateVariable);
 
-  if (!isDefined(variableWithFallback) || !editor.isEditable) {
+  if (!isDefined(templateVariableWithFallback) || !editor.isEditable) {
     return (
-      <VariableChip deleteNode={deleteNode} editor={editor} label={variable} />
+      <VariableChip
+        deleteNode={deleteNode}
+        editor={editor}
+        label={rawTemplateVariable}
+      />
     );
   }
 
   const handleFallbackSubmit = (fallback: string) => {
-    const nextVariable = formatVariableWithFallback({
-      name: variableWithFallback.name,
-      fallback,
-    });
+    const rawTemplateVariableWithSubmittedFallback =
+      formatTemplateVariableWithFallback({
+        name: templateVariableWithFallback.name,
+        fallback,
+      });
 
     closeDropdown(dropdownId);
     editor.commands.focus();
 
-    if (nextVariable !== variable) {
-      updateAttributes({ variable: nextVariable });
+    if (rawTemplateVariableWithSubmittedFallback !== rawTemplateVariable) {
+      updateAttributes({ variable: rawTemplateVariableWithSubmittedFallback });
     }
   };
 
@@ -77,10 +83,12 @@ export const VariableWithFallbackChip = ({
           aria-label={t`Edit fallback value`}
         >
           <BaseChip
-            label={`{{${variableWithFallback.name}}}`}
-            title={variable}
+            label={`{{${templateVariableWithFallback.name}}}`}
+            title={rawTemplateVariable}
             leftIcon={
-              isNonEmptyString(variableWithFallback.fallback) ? undefined : (
+              isNonEmptyString(
+                templateVariableWithFallback.fallback,
+              ) ? undefined : (
                 <Tooltip
                   content={t`Add a fallback value to avoid empty personalization`}
                   delay={TooltipDelay.shortDelay}
@@ -111,7 +119,7 @@ export const VariableWithFallbackChip = ({
         >
           <Dropdown.Section>
             <TextInputDropdownForm
-              defaultValue={variableWithFallback.fallback ?? ''}
+              defaultValue={templateVariableWithFallback.fallback ?? ''}
               label={t`Fallback value`}
               onSubmit={handleFallbackSubmit}
             />
