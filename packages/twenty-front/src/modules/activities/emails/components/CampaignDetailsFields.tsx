@@ -14,8 +14,8 @@ import {
   CampaignEnvelopeBox,
   CampaignEnvelopeRow,
 } from '@/activities/emails/components/CampaignEnvelopeBox';
-import { CampaignVariablePicker } from '@/activities/emails/components/CampaignVariablePicker';
 import { useCampaignDetailsState } from '@/activities/emails/hooks/useCampaignDetailsState';
+import { useCampaignEmailEditorVariables } from '@/activities/emails/hooks/useCampaignEmailEditorVariables';
 import { useUnsubscribeTopics } from '@/activities/emails/hooks/useUnsubscribeTopics';
 import { type MessageCampaign } from '@/activities/emails/types/MessageCampaign';
 import { useCreateOneRecord } from '@/object-record/hooks/useCreateOneRecord';
@@ -23,6 +23,8 @@ import { FormSingleRecordPicker } from '@/object-record/record-field/ui/form-typ
 import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/components/FormTextFieldInput';
 import { useMyMessageChannels } from '@/settings/accounts/hooks/useMyMessageChannels';
 import { Select } from '@/ui/input/components/Select';
+import { VariableListPicker } from '@/ui/input/components/VariableListPicker';
+import { VariableListPickerContext } from '@/ui/input/contexts/VariableListPickerContext';
 
 const StyledWarningContainer = styled.div`
   margin-top: ${themeCssVariables.spacing[2]};
@@ -40,6 +42,8 @@ export const CampaignDetailsFields = ({
   const detailsState = useCampaignDetailsState({ campaign });
   const { channels } = useMyMessageChannels();
   const { unsubscribeTopics } = useUnsubscribeTopics();
+  const { variables, formatVariableWithExistingFallback } =
+    useCampaignEmailEditorVariables();
   const { createOneRecord: createMessageList } = useCreateOneRecord({
     objectNameSingular: CoreObjectNameSingular.MessageList,
   });
@@ -121,15 +125,22 @@ export const CampaignDetailsFields = ({
         </CampaignEnvelopeRow>
       )}
       <CampaignEnvelopeRow label={t`Subject`}>
-        <FormTextFieldInput
-          key={`subject-${detailsState.draftResyncKey}`}
-          ariaLabel={t`Subject`}
-          placeholder={t`Enter email subject`}
-          defaultValue={detailsState.subject}
-          onChange={detailsState.setSubject}
-          VariablePicker={CampaignVariablePicker}
-          enableVariableFallback
-        />
+        <VariableListPickerContext.Provider
+          value={{
+            variables,
+            formatVariable: formatVariableWithExistingFallback,
+          }}
+        >
+          <FormTextFieldInput
+            key={`subject-${detailsState.draftResyncKey}`}
+            ariaLabel={t`Subject`}
+            placeholder={t`Enter email subject`}
+            defaultValue={detailsState.subject}
+            onChange={detailsState.setSubject}
+            VariablePicker={VariableListPicker}
+            enableVariableFallback
+          />
+        </VariableListPickerContext.Provider>
       </CampaignEnvelopeRow>
     </CampaignEnvelopeBox>
   );
