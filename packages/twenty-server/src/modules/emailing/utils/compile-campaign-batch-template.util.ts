@@ -4,8 +4,6 @@ import {
   isDefined,
   parseCanonicalEmailDocument,
   parseJson,
-  parseVariableWithFallback,
-  VARIABLE_WITH_FALLBACK_PATTERN,
   type VariableWithFallback,
 } from 'twenty-shared/utils';
 
@@ -16,6 +14,7 @@ import {
   EmailingDomainExceptionCode,
 } from 'src/engine/core-modules/emailing-domain/exceptions/emailing-domain.exception';
 import { type EmailingDomainEmailTemplate } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-email-template.type';
+import { replaceCampaignVariables } from 'src/modules/emailing/utils/replace-campaign-variables.util';
 
 const CAMPAIGN_BATCH_TAG_PREFIXES = {
   htmlEscaped: 'v_h',
@@ -72,15 +71,11 @@ export const compileCampaignBatchTemplate = async ({
   };
 
   const toTags = (value: string, tagFamily: CampaignBatchTagFamily): string =>
-    value.replace(VARIABLE_WITH_FALLBACK_PATTERN, (variable) => {
-      const campaignVariable = parseVariableWithFallback(variable);
-
-      if (!isDefined(campaignVariable)) {
-        return variable;
-      }
-
-      return `{{${CAMPAIGN_BATCH_TAG_PREFIXES[tagFamily]}_${indexOfVariable(campaignVariable)}}}`;
-    });
+    replaceCampaignVariables(
+      value,
+      (campaignVariable) =>
+        `{{${CAMPAIGN_BATCH_TAG_PREFIXES[tagFamily]}_${indexOfVariable(campaignVariable)}}}`,
+    );
 
   const subject = toTags(subjectTemplate, 'raw');
 
