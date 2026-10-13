@@ -6,6 +6,10 @@ export const renderCampaignTemplate = (
   variables: Record<string, string>,
   { encodeValue }: { encodeValue: (value: string) => string },
 ): string =>
-  replaceCampaignVariables(template, (campaignVariable) =>
-    encodeValue(resolveCampaignVariableValue({ variables, campaignVariable })),
-  );
+  replaceCampaignVariables({
+    template,
+    replaceCampaignVariable: (campaignVariable) =>
+      encodeValue(
+        resolveCampaignVariableValue({ variables, campaignVariable }),
+      ),
+  });

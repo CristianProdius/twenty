@@ -71,11 +71,11 @@ export const compileCampaignBatchTemplate = async ({
   };
 
   const toTags = (value: string, tagFamily: CampaignBatchTagFamily): string =>
-    replaceCampaignVariables(
-      value,
-      (campaignVariable) =>
+    replaceCampaignVariables({
+      template: value,
+      replaceCampaignVariable: (campaignVariable) =>
         `{{${CAMPAIGN_BATCH_TAG_PREFIXES[tagFamily]}_${indexOfVariable(campaignVariable)}}}`,
-    );
+    });
 
   const subject = toTags(subjectTemplate, 'raw');
 
