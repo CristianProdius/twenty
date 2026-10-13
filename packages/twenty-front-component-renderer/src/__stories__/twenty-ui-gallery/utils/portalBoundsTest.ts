@@ -3,16 +3,12 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectElementToReceivePointer } from '@/__stories__/shared/test-utils/matchers/expectElementToReceivePointer';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
-import { waitForAnimationFrames } from '@/__stories__/shared/test-utils/waitForAnimationFrames';
 import { type TwentyUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { waitForGeometryTrackerToIdle } from '@/__stories__/twenty-ui-gallery/utils/waitForGeometryTrackerToIdle';
 import { FRONT_COMPONENT_PORTAL_MARGIN } from '@/constants/FrontComponentPortalMargin';
-import { GEOMETRY_IDLE_FRAME_THRESHOLD } from '@/host/geometry/constants/GeometryIdleFrameThreshold';
 
 const MAXIMUM_DROPDOWN_TRIGGER_GAP = 16;
 const WIDGET_SCROLL_OFFSET = 40;
-
-const waitForGeometryTrackerToIdle = () =>
-  waitForAnimationFrames(GEOMETRY_IDLE_FRAME_THRESHOLD * 2);
 
 const expectPortalActionAtOwnerBottom = ({
   portalAction,
