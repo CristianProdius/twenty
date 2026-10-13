@@ -1,12 +1,12 @@
 import { isDefined } from '@/utils/validation/isDefined';
 
-import { type CampaignVariable } from './campaign-variable';
-import { CAMPAIGN_VARIABLE_PATTERN } from './campaign-variable-pattern';
+import { type VariableWithFallback } from './variable-with-fallback';
+import { VARIABLE_WITH_FALLBACK_PATTERN } from './variable-with-fallback-pattern';
 
-export const parseCampaignVariable = (
+export const parseVariableWithFallback = (
   variable: string,
-): CampaignVariable | undefined => {
-  const [match] = variable.matchAll(CAMPAIGN_VARIABLE_PATTERN);
+): VariableWithFallback | undefined => {
+  const [match] = variable.matchAll(VARIABLE_WITH_FALLBACK_PATTERN);
 
   if (!isDefined(match) || match[0] !== variable) {
     return undefined;

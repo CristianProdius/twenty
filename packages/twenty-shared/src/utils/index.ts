@@ -192,6 +192,7 @@ export {
   relationFilterValueSchemaObject,
   jsonRelationFilterValueSchema,
 } from './filter/utils/validation-schemas/jsonRelationFilterValueSchema';
+export { formatVariableWithFallback } from './format-variable-with-fallback';
 export { formatBytes } from './format/formatBytes';
 export { formatToShortNumber } from './format/formatToShortNumber';
 export { fromArrayToUniqueKeyRecord } from './from-array-to-unique-key-record.util';
@@ -216,6 +217,7 @@ export { fastDeepEqual } from './json/fast-deep-equal';
 export { getAppPath } from './navigation/getAppPath';
 export { getSettingsPath } from './navigation/getSettingsPath';
 export { getPageLayoutWidgetHeightBehavior } from './pageLayout/getPageLayoutWidgetHeightBehavior';
+export { parseVariableWithFallback } from './parse-variable-with-fallback';
 export { parseJson } from './parseJson';
 export { removePropertiesFromRecord } from './removePropertiesFromRecord';
 export { removeUndefinedFields } from './removeUndefinedFields';
@@ -239,8 +241,6 @@ export { pascalToKebab } from './strings/pascalToKebab';
 export { stringifySafely } from './strings/stringifySafely';
 export { uncapitalize } from './strings/uncapitalize';
 export { getSubdomainSlugFromDisplayName } from './subdomain/getSubdomainSlugFromDisplayName';
-export { CAMPAIGN_VARIABLE_PATTERN } from './tiptap/campaign-variable-pattern';
-export type { CampaignVariable } from './tiptap/campaign-variable';
 export type { CanvasTheme } from './tiptap/canvas-theme';
 export { CANVAS_THEME_DEFAULTS } from './tiptap/canvas-theme';
 export { convertEmailBodyToEmailDocument } from './tiptap/convert-email-body-to-email-document';
@@ -265,7 +265,6 @@ export { EMAIL_DOCUMENT_SCHEMA_VERSION } from './tiptap/email-document-schema-ve
 export type { EmailDocument } from './tiptap/email-document-schema';
 export { emailDocumentSchema } from './tiptap/email-document-schema';
 export type { EmailDocumentStringContext } from './tiptap/email-document-string-context';
-export { formatCampaignVariable } from './tiptap/format-campaign-variable';
 export { getFullHtmlEmailIfWholeBody } from './tiptap/get-full-html-email-if-whole-body';
 export { HTML_ELEMENT_NAMES } from './tiptap/html-element-names';
 export { isCanvasTheme } from './tiptap/is-canvas-theme';
@@ -273,7 +272,6 @@ export { isEmailDocumentShape } from './tiptap/is-email-document-shape';
 export type { CampaignVariableDefinition } from './tiptap/list-campaign-variables-for-fields';
 export { listCampaignVariablesForFields } from './tiptap/list-campaign-variables-for-fields';
 export { looksLikeHtml } from './tiptap/looks-like-html';
-export { parseCampaignVariable } from './tiptap/parse-campaign-variable';
 export {
   parseEmailDocument,
   parseCanonicalEmailDocument,
@@ -367,5 +365,7 @@ export {
   resolveInput,
   resolveStringTemplate,
 } from './variable-resolver';
+export { VARIABLE_WITH_FALLBACK_PATTERN } from './variable-with-fallback-pattern';
+export type { VariableWithFallback } from './variable-with-fallback';
 export { getViewLayoutFromViewType } from './views/getViewLayoutFromViewType';
 export { isWidgetViewType } from './views/isWidgetViewType';

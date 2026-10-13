@@ -1,4 +1,4 @@
-export type CampaignVariable = {
+export type VariableWithFallback = {
   name: string;
   fallback?: string;
 };

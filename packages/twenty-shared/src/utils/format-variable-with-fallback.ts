@@ -1,11 +1,11 @@
 import { isNonEmptyString } from '@sniptt/guards';
 
-import { type CampaignVariable } from './campaign-variable';
+import { type VariableWithFallback } from './variable-with-fallback';
 
-export const formatCampaignVariable = ({
+export const formatVariableWithFallback = ({
   name,
   fallback,
-}: CampaignVariable): string =>
+}: VariableWithFallback): string =>
   isNonEmptyString(fallback)
     ? `{{${name} | default: "${fallback.replace(/["\\]/g, '\\$&')}"}}`
     : `{{${name}}}`;
