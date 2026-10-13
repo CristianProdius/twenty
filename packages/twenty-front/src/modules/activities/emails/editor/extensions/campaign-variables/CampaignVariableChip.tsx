@@ -1,15 +1,25 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
-import { type NodeViewProps } from '@tiptap/react';
+import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
+import { useId } from 'react';
 import { isDefined, parseCampaignVariable } from 'twenty-shared/utils';
+import { Dropdown } from 'twenty-ui/components/navigation';
 import { IconAlertTriangle } from 'twenty-ui/icon';
 import { Tooltip } from 'twenty-ui/primitives/surfaces';
-import { useTheme } from 'twenty-ui/theme';
+import { themeCssVariables, useTheme } from 'twenty-ui/theme';
 
+import { CampaignVariableFallbackDropdownForm } from '@/activities/emails/editor/extensions/campaign-variables/CampaignVariableFallbackDropdownForm';
 import { VariableChip } from '@/advanced-text-editor/extensions/variable-tag/VariableChip';
-import { useOpenEmailBlockStyleInSidePanel } from '@/side-panel/hooks/useOpenEmailBlockStyleInSidePanel';
+import { BaseChip } from '@/ui/input/components/BaseChip';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
+import { DropdownRoot } from '@/ui/layout/dropdown/components/DropdownRoot';
 import { TooltipDelay } from '@/ui/layout/tooltip/constants/TooltipDelay';
+
+const StyledWrapper = styled.span`
+  display: inline-block;
+  padding-inline: ${themeCssVariables.spacing[0.5]};
+`;
 
 const StyledMissingFallbackIcon = styled.span`
   display: flex;
@@ -20,14 +30,13 @@ type CampaignVariableChipProps = NodeViewProps;
 export const CampaignVariableChip = ({
   deleteNode,
   editor,
-  getPos,
   node,
   selected,
+  updateAttributes,
 }: CampaignVariableChipProps) => {
   const { t } = useLingui();
   const theme = useTheme();
-  const { openEmailBlockStyleInSidePanel } =
-    useOpenEmailBlockStyleInSidePanel();
+  const dropdownId = `campaign-variable-fallback-dropdown-${useId()}`;
 
   const variable =
     typeof node.attrs.variable === 'string' ? node.attrs.variable : '';
@@ -39,43 +48,60 @@ export const CampaignVariableChip = ({
     );
   }
 
-  const label = `{{${campaignVariable.name}}}`;
+  const handleFallbackSubmit = (nextVariable: string) => {
+    editor.commands.focus();
 
-  const handleClick = () => {
-    const position = getPos();
-
-    if (!isDefined(position)) {
-      return;
+    if (nextVariable !== variable) {
+      updateAttributes({ variable: nextVariable });
     }
-
-    editor.commands.setNodeSelection(position);
-    openEmailBlockStyleInSidePanel();
   };
 
   return (
-    <VariableChip
-      deleteNode={deleteNode}
-      editor={editor}
-      label={label}
-      title={variable}
-      selected={selected}
-      onClick={handleClick}
-      leftIcon={
-        isNonEmptyString(campaignVariable.fallback) ? undefined : (
-          <Tooltip
-            content={t`Add a fallback value to avoid empty personalization`}
-            delay={TooltipDelay.shortDelay}
-          >
-            <StyledMissingFallbackIcon>
-              <IconAlertTriangle
-                size={theme.icon.size.sm}
-                stroke={theme.icon.stroke.sm}
-                color={theme.color.orange}
-              />
-            </StyledMissingFallbackIcon>
-          </Tooltip>
-        )
-      }
-    />
+    <NodeViewWrapper as={StyledWrapper} style={{ whiteSpace: 'nowrap' }}>
+      <DropdownRoot dropdownId={dropdownId} type="panel">
+        <Dropdown.Trigger render={<span />} nativeButton={false} tabIndex={-1}>
+          <BaseChip
+            label={`{{${campaignVariable.name}}}`}
+            title={variable}
+            selected={selected}
+            leftIcon={
+              isNonEmptyString(campaignVariable.fallback) ? undefined : (
+                <Tooltip
+                  content={t`Add a fallback value to avoid empty personalization`}
+                  delay={TooltipDelay.shortDelay}
+                >
+                  <StyledMissingFallbackIcon>
+                    <IconAlertTriangle
+                      size={theme.icon.size.sm}
+                      stroke={theme.icon.stroke.sm}
+                      color={theme.color.orange}
+                    />
+                  </StyledMissingFallbackIcon>
+                </Tooltip>
+              )
+            }
+            onRemove={(event) => {
+              event.stopPropagation();
+              deleteNode();
+            }}
+            removeAriaLabel={t`Remove variable`}
+          />
+        </Dropdown.Trigger>
+        <DropdownContent
+          align="start"
+          finalFocus={(interaction) =>
+            interaction === 'keyboard' ? editor.view.dom : false
+          }
+          aria-label={t`Fallback value`}
+        >
+          <Dropdown.Section>
+            <CampaignVariableFallbackDropdownForm
+              campaignVariable={campaignVariable}
+              onSubmit={handleFallbackSubmit}
+            />
+          </Dropdown.Section>
+        </DropdownContent>
+      </DropdownRoot>
+    </NodeViewWrapper>
   );
 };

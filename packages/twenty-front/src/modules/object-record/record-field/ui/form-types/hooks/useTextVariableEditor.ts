@@ -6,9 +6,10 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { Placeholder } from '@tiptap/extensions/placeholder';
 import { UndoRedo } from '@tiptap/extensions/undo-redo';
+import { type AnyExtension } from '@tiptap/core';
 import { Slice } from '@tiptap/pm/model';
 
-import { type Editor, useEditor } from '@tiptap/react';
+import { type Editor, type JSONContent, useEditor } from '@tiptap/react';
 import { useEffect } from 'react';
 import { isDefined, parseJson } from 'twenty-shared/utils';
 import { type JsonValue } from 'type-fest';
@@ -20,6 +21,9 @@ type UseTextVariableEditorProps = {
   defaultValue: string | undefined | null;
   onUpdate: (editor: Editor) => void;
   ariaLabelledBy?: string;
+  ariaLabel?: string;
+  variableTagExtension?: AnyExtension;
+  getInitialContent?: (rawContent: string) => JSONContent;
 };
 
 const isJsonObject = (text: string): boolean => {
@@ -38,6 +42,9 @@ export const useTextVariableEditor = ({
   defaultValue,
   onUpdate,
   ariaLabelledBy,
+  ariaLabel,
+  variableTagExtension = WorkflowVariableTag,
+  getInitialContent = getInitialEditorContent,
 }: UseTextVariableEditorProps) => {
   const editor = useEditor({
     extensions: [
@@ -47,7 +54,7 @@ export const useTextVariableEditor = ({
       Placeholder.configure({
         placeholder,
       }),
-      WorkflowVariableTag,
+      variableTagExtension,
       ...(multiline
         ? [
             HardBreak.configure({
@@ -58,7 +65,7 @@ export const useTextVariableEditor = ({
       UndoRedo,
     ],
     content: isDefined(defaultValue)
-      ? getInitialEditorContent(defaultValue)
+      ? getInitialContent(defaultValue)
       : undefined,
     editable: !readonly,
     onUpdate: ({ editor }) => {
@@ -71,6 +78,7 @@ export const useTextVariableEditor = ({
         ...(isDefined(ariaLabelledBy)
           ? { 'aria-labelledby': ariaLabelledBy }
           : {}),
+        ...(isDefined(ariaLabel) ? { 'aria-label': ariaLabel } : {}),
       },
       handleKeyDown: (view, event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -101,9 +109,7 @@ export const useTextVariableEditor = ({
           const formattedJson = multiline
             ? JSON.stringify(parsedJson, null, 2)
             : JSON.stringify(parsedJson);
-          const docNode = schema.nodeFromJSON(
-            getInitialEditorContent(formattedJson),
-          );
+          const docNode = schema.nodeFromJSON(getInitialContent(formattedJson));
           const inlineContent = docNode.firstChild?.content;
 
           if (inlineContent && inlineContent.size > 0) {
@@ -114,9 +120,7 @@ export const useTextVariableEditor = ({
         }
 
         if (multiline && plainText.includes('\n')) {
-          const docNode = schema.nodeFromJSON(
-            getInitialEditorContent(plainText),
-          );
+          const docNode = schema.nodeFromJSON(getInitialContent(plainText));
           const inlineContent = docNode.firstChild?.content;
 
           if (inlineContent && inlineContent.size > 0) {

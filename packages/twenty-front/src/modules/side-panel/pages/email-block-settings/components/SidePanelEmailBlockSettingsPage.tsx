@@ -10,7 +10,6 @@ import { LightIconButton } from 'twenty-ui/components/input';
 import { IconTrash } from 'twenty-ui/icon';
 import { themeCssVariables } from 'twenty-ui/theme';
 
-import { getCampaignVariableSelectionTarget } from '@/activities/emails/editor/utils/getCampaignVariableSelectionTarget';
 import { activeEmailEditorState } from '@/activities/emails/states/activeEmailEditorState';
 import { ADVANCED_TEXT_EDITOR_BLOCK_CATALOG } from '@/advanced-text-editor/constants/AdvancedTextEditorBlockCatalog';
 import { useLiveEditorState } from '@/advanced-text-editor/hooks/useLiveEditorState';
@@ -18,7 +17,6 @@ import { type AdvancedTextEditorBlockSetting } from '@/advanced-text-editor/type
 import { getBlockSelectionTarget } from '@/advanced-text-editor/utils/getBlockSelectionTarget';
 import { getBlockStyle } from '@/advanced-text-editor/utils/getBlockStyle';
 import { EmailBlockSettingsFieldInput } from '@/side-panel/pages/email-block-settings/components/EmailBlockSettingsFieldInput';
-import { EmailCampaignVariableFallbackInput } from '@/side-panel/pages/email-block-settings/components/EmailCampaignVariableFallbackInput';
 import {
   EmailBoxSidesInput,
   type CssBoxSides,
@@ -72,24 +70,6 @@ const EmailBlockSettingsContent = ({ editor }: { editor: Editor }) => {
   const target = useLiveEditorState(editor, (currentEditor) =>
     getBlockSelectionTarget(currentEditor),
   );
-  const variableTarget = useLiveEditorState(editor, (currentEditor) =>
-    getCampaignVariableSelectionTarget(currentEditor),
-  );
-
-  if (isDefined(variableTarget)) {
-    const { name, fallback } = variableTarget.campaignVariable;
-
-    return (
-      <StyledContainer>
-        <StyledBlockTitle>{t`Variable`}</StyledBlockTitle>
-        <EmailCampaignVariableFallbackInput
-          key={`${variableTarget.pos}-${name}-${fallback ?? ''}`}
-          editor={editor}
-          target={variableTarget}
-        />
-      </StyledContainer>
-    );
-  }
 
   if (!isDefined(target)) {
     return (

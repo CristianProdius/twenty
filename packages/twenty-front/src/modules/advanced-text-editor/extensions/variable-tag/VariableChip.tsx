@@ -2,7 +2,6 @@ import { BaseChip } from '@/ui/input/components/BaseChip';
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
-import { type ReactNode } from 'react';
 import { themeCssVariables } from 'twenty-ui/theme';
 
 const StyledWrapper = styled.span`
@@ -13,9 +12,6 @@ const StyledWrapper = styled.span`
 type VariableChipProps = Pick<NodeViewProps, 'deleteNode' | 'editor'> & {
   label: string;
   title?: string;
-  leftIcon?: ReactNode;
-  selected?: boolean;
-  onClick?: () => void;
 };
 
 export const VariableChip = ({
@@ -23,28 +19,12 @@ export const VariableChip = ({
   editor,
   label,
   title,
-  leftIcon,
-  selected,
-  onClick,
 }: VariableChipProps) => (
-  <NodeViewWrapper
-    as={StyledWrapper}
-    style={{ whiteSpace: 'nowrap' }}
-    onClick={onClick}
-  >
+  <NodeViewWrapper as={StyledWrapper} style={{ whiteSpace: 'nowrap' }}>
     <BaseChip
       label={label}
       title={title}
-      leftIcon={leftIcon}
-      selected={selected}
-      onRemove={
-        editor.isEditable
-          ? (event) => {
-              event.stopPropagation();
-              deleteNode();
-            }
-          : undefined
-      }
+      onRemove={editor.isEditable ? deleteNode : undefined}
       removeAriaLabel={t`Remove variable`}
     />
   </NodeViewWrapper>
