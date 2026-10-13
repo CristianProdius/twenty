@@ -24,7 +24,6 @@ import { TooltipDelay } from '@/ui/layout/tooltip/constants/TooltipDelay';
 const StyledWrapper = styled.span`
   display: inline-block;
   padding-inline: ${themeCssVariables.spacing[0.5]};
-  white-space: nowrap;
 `;
 
 const StyledMissingFallbackIcon = styled.span`
@@ -75,7 +74,7 @@ export const TemplateVariableWithFallbackChip = ({
   };
 
   return (
-    <NodeViewWrapper as={StyledWrapper}>
+    <NodeViewWrapper as={StyledWrapper} style={{ whiteSpace: 'nowrap' }}>
       <DropdownRoot dropdownId={dropdownId} type="panel">
         <Dropdown.Trigger
           render={<span />}
