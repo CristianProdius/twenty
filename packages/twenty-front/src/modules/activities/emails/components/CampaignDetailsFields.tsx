@@ -15,8 +15,6 @@ import {
   CampaignEnvelopeRow,
 } from '@/activities/emails/components/CampaignEnvelopeBox';
 import { CampaignVariablePicker } from '@/activities/emails/components/CampaignVariablePicker';
-import { CampaignVariableTag } from '@/activities/emails/editor/extensions/campaign-variables/CampaignVariableTag';
-import { getInitialCampaignVariableEditorContent } from '@/activities/emails/editor/utils/getInitialCampaignVariableEditorContent';
 import { useCampaignDetailsState } from '@/activities/emails/hooks/useCampaignDetailsState';
 import { useUnsubscribeTopics } from '@/activities/emails/hooks/useUnsubscribeTopics';
 import { type MessageCampaign } from '@/activities/emails/types/MessageCampaign';
@@ -130,8 +128,7 @@ export const CampaignDetailsFields = ({
           defaultValue={detailsState.subject}
           onChange={detailsState.setSubject}
           VariablePicker={CampaignVariablePicker}
-          variableTagExtension={CampaignVariableTag}
-          getInitialContent={getInitialCampaignVariableEditorContent}
+          enableVariableFallback
         />
       </CampaignEnvelopeRow>
     </CampaignEnvelopeBox>

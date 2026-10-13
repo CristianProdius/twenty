@@ -7,8 +7,6 @@ import { useTextVariableEditor } from '@/object-record/record-field/ui/form-type
 import { type VariablePickerComponent } from '@/ui/input/types/VariablePickerComponent';
 import { Field } from 'twenty-ui/primitives/input';
 import { parseEditorContent } from '@/workflow/workflow-variables/utils/parseEditorContent';
-import { type AnyExtension } from '@tiptap/core';
-import { type JSONContent } from '@tiptap/react';
 import { useId } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 
@@ -24,8 +22,7 @@ type FormTextFieldInputProps = {
   placeholder?: string;
   VariablePicker?: VariablePickerComponent;
   ariaLabel?: string;
-  variableTagExtension?: AnyExtension;
-  getInitialContent?: (rawContent: string) => JSONContent;
+  enableVariableFallback?: boolean;
 };
 
 export const FormTextFieldInput = ({
@@ -40,8 +37,7 @@ export const FormTextFieldInput = ({
   readonly,
   VariablePicker,
   ariaLabel,
-  variableTagExtension,
-  getInitialContent,
+  enableVariableFallback,
 }: FormTextFieldInputProps) => {
   const instanceId = useId();
   const labelId = `${instanceId}-label`;
@@ -53,8 +49,7 @@ export const FormTextFieldInput = ({
     defaultValue,
     ariaLabelledBy: label ? labelId : undefined,
     ariaLabel,
-    variableTagExtension,
-    getInitialContent,
+    enableVariableFallback,
     onUpdate: (editor) => {
       const jsonContent = editor.getJSON();
       const parsedContent = parseEditorContent(jsonContent);

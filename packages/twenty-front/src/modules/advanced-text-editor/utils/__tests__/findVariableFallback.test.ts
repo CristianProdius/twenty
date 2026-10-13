@@ -1,8 +1,8 @@
 import type { JSONContent } from '@tiptap/react';
 
-import { findCampaignVariableFallback } from '@/activities/emails/editor/utils/findCampaignVariableFallback';
+import { findVariableFallback } from '@/advanced-text-editor/utils/findVariableFallback';
 
-const buildBodyDocument = (variables: string[]): JSONContent => ({
+const buildEditorContent = (variables: string[]): JSONContent => ({
   type: 'doc',
   content: [
     {
@@ -20,12 +20,12 @@ const buildBodyDocument = (variables: string[]): JSONContent => ({
   ],
 });
 
-describe('findCampaignVariableFallback', () => {
-  it('should prefer the subject fallback over a different body fallback', () => {
+describe('findVariableFallback', () => {
+  it('should prefer the raw content fallback over a different editor content fallback', () => {
     expect(
-      findCampaignVariableFallback({
-        subject: 'Hi {{name.firstName | default: "there"}}',
-        bodyDocument: buildBodyDocument([
+      findVariableFallback({
+        rawContent: 'Hi {{name.firstName | default: "there"}}',
+        editorContent: buildEditorContent([
           '{{name.firstName | default: "friend"}}',
         ]),
         name: 'name.firstName',
@@ -33,11 +33,11 @@ describe('findCampaignVariableFallback', () => {
     ).toBe('there');
   });
 
-  it('should find a fallback on a chip nested in the body', () => {
+  it('should find a fallback on a chip nested in the editor content', () => {
     expect(
-      findCampaignVariableFallback({
-        subject: 'Hi {{name.firstName}}',
-        bodyDocument: buildBodyDocument([
+      findVariableFallback({
+        rawContent: 'Hi {{name.firstName}}',
+        editorContent: buildEditorContent([
           '{{jobTitle | default: "builder"}}',
           '{{name.firstName}}',
           '{{name.firstName | default: "friend"}}',

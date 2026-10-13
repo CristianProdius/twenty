@@ -1,14 +1,14 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
-import { formatCampaignVariable } from 'twenty-shared/utils';
+import { formatVariableWithFallback } from 'twenty-shared/utils';
 import { Dropdown } from 'twenty-ui/components/navigation';
 import { IconVariable, IconVariablePlus } from 'twenty-ui/icon';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme';
 
-import { findCampaignVariableFallback } from '@/activities/emails/editor/utils/findCampaignVariableFallback';
 import { useActiveEmailCampaignSubject } from '@/activities/emails/hooks/useActiveEmailCampaignSubject';
 import { useCampaignEmailEditorVariables } from '@/activities/emails/hooks/useCampaignEmailEditorVariables';
 import { activeEmailEditorState } from '@/activities/emails/states/activeEmailEditorState';
+import { findVariableFallback } from '@/advanced-text-editor/utils/findVariableFallback';
 import { SelectOptionIcon } from '@/ui/input/components/SelectOptionIcon';
 import { type VariablePickerComponent } from '@/ui/input/types/VariablePickerComponent';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
@@ -45,11 +45,11 @@ export const CampaignVariablePicker: VariablePickerComponent = ({
 
   const handleVariableSelect = (name: string) =>
     onVariableSelect(
-      formatCampaignVariable({
+      formatVariableWithFallback({
         name,
-        fallback: findCampaignVariableFallback({
-          subject,
-          bodyDocument: activeEmailEditor?.getJSON(),
+        fallback: findVariableFallback({
+          rawContent: subject,
+          editorContent: activeEmailEditor?.getJSON(),
           name,
         }),
       }),

@@ -1,8 +1,8 @@
 import { useLingui } from '@lingui/react/macro';
 import { useState, type FocusEvent, type FormEvent } from 'react';
 import {
-  type CampaignVariable,
-  formatCampaignVariable,
+  formatVariableWithFallback,
+  type VariableWithFallback,
 } from 'twenty-shared/utils';
 
 import { TextInput } from '@/ui/input/components/TextInput';
@@ -10,17 +10,17 @@ import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { isDropdownOpenComponentState } from '@/ui/layout/dropdown/states/isDropdownOpenComponentState';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 
-type CampaignVariableFallbackDropdownFormProps = {
-  campaignVariable: CampaignVariable;
+type VariableFallbackDropdownFormProps = {
+  variableWithFallback: VariableWithFallback;
   onSubmit: (variable: string) => void;
 };
 
-export const CampaignVariableFallbackDropdownForm = ({
-  campaignVariable,
+export const VariableFallbackDropdownForm = ({
+  variableWithFallback,
   onSubmit,
-}: CampaignVariableFallbackDropdownFormProps) => {
+}: VariableFallbackDropdownFormProps) => {
   const { t } = useLingui();
-  const [fallback, setFallback] = useState(campaignVariable.fallback ?? '');
+  const [fallback, setFallback] = useState(variableWithFallback.fallback ?? '');
   const isDropdownOpen = useAtomComponentStateValue(
     isDropdownOpenComponentState,
   );
@@ -36,7 +36,9 @@ export const CampaignVariableFallbackDropdownForm = ({
     }
 
     closeDropdown();
-    onSubmit(formatCampaignVariable({ name: campaignVariable.name, fallback }));
+    onSubmit(
+      formatVariableWithFallback({ name: variableWithFallback.name, fallback }),
+    );
   };
 
   return (

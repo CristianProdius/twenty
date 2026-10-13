@@ -1,4 +1,6 @@
+import { VariableWithFallbackTag } from '@/advanced-text-editor/extensions/variable-tag/VariableWithFallbackTag';
 import { getInitialEditorContent } from '@/advanced-text-editor/utils/getInitialEditorContent';
+import { getInitialVariableWithFallbackEditorContent } from '@/advanced-text-editor/utils/getInitialVariableWithFallbackEditorContent';
 import { WorkflowVariableTag } from '@/workflow/workflow-variables/extensions/WorkflowVariableTag';
 import Document from '@tiptap/extension-document';
 import HardBreak from '@tiptap/extension-hard-break';
@@ -6,10 +8,9 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { Placeholder } from '@tiptap/extensions/placeholder';
 import { UndoRedo } from '@tiptap/extensions/undo-redo';
-import { type AnyExtension } from '@tiptap/core';
 import { Slice } from '@tiptap/pm/model';
 
-import { type Editor, type JSONContent, useEditor } from '@tiptap/react';
+import { type Editor, useEditor } from '@tiptap/react';
 import { useEffect } from 'react';
 import { isDefined, parseJson } from 'twenty-shared/utils';
 import { type JsonValue } from 'type-fest';
@@ -22,8 +23,7 @@ type UseTextVariableEditorProps = {
   onUpdate: (editor: Editor) => void;
   ariaLabelledBy?: string;
   ariaLabel?: string;
-  variableTagExtension?: AnyExtension;
-  getInitialContent?: (rawContent: string) => JSONContent;
+  enableVariableFallback?: boolean;
 };
 
 const isJsonObject = (text: string): boolean => {
@@ -43,9 +43,15 @@ export const useTextVariableEditor = ({
   onUpdate,
   ariaLabelledBy,
   ariaLabel,
-  variableTagExtension = WorkflowVariableTag,
-  getInitialContent = getInitialEditorContent,
+  enableVariableFallback = false,
 }: UseTextVariableEditorProps) => {
+  const variableTagExtension = enableVariableFallback
+    ? VariableWithFallbackTag
+    : WorkflowVariableTag;
+  const getInitialContent = enableVariableFallback
+    ? getInitialVariableWithFallbackEditorContent
+    : getInitialEditorContent;
+
   const editor = useEditor({
     extensions: [
       Document,

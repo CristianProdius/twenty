@@ -3,14 +3,14 @@ import { useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
 import { useId } from 'react';
-import { isDefined, parseCampaignVariable } from 'twenty-shared/utils';
+import { isDefined, parseVariableWithFallback } from 'twenty-shared/utils';
 import { Dropdown } from 'twenty-ui/components/navigation';
 import { IconAlertTriangle } from 'twenty-ui/icon';
 import { Tooltip } from 'twenty-ui/primitives/surfaces';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme';
 
-import { CampaignVariableFallbackDropdownForm } from '@/activities/emails/editor/extensions/campaign-variables/CampaignVariableFallbackDropdownForm';
 import { VariableChip } from '@/advanced-text-editor/extensions/variable-tag/VariableChip';
+import { VariableFallbackDropdownForm } from '@/advanced-text-editor/extensions/variable-tag/VariableFallbackDropdownForm';
 import { BaseChip } from '@/ui/input/components/BaseChip';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownRoot } from '@/ui/layout/dropdown/components/DropdownRoot';
@@ -25,23 +25,23 @@ const StyledMissingFallbackIcon = styled.span`
   display: flex;
 `;
 
-type CampaignVariableChipProps = NodeViewProps;
+type VariableWithFallbackChipProps = NodeViewProps;
 
-export const CampaignVariableChip = ({
+export const VariableWithFallbackChip = ({
   deleteNode,
   editor,
   node,
   updateAttributes,
-}: CampaignVariableChipProps) => {
+}: VariableWithFallbackChipProps) => {
   const { t } = useLingui();
   const theme = useTheme();
-  const dropdownId = `campaign-variable-fallback-dropdown-${useId()}`;
+  const dropdownId = `variable-fallback-dropdown-${useId()}`;
 
   const variable =
     typeof node.attrs.variable === 'string' ? node.attrs.variable : '';
-  const campaignVariable = parseCampaignVariable(variable);
+  const variableWithFallback = parseVariableWithFallback(variable);
 
-  if (!isDefined(campaignVariable) || !editor.isEditable) {
+  if (!isDefined(variableWithFallback) || !editor.isEditable) {
     return (
       <VariableChip deleteNode={deleteNode} editor={editor} label={variable} />
     );
@@ -60,10 +60,10 @@ export const CampaignVariableChip = ({
       <DropdownRoot dropdownId={dropdownId} type="panel">
         <Dropdown.Trigger render={<span />} nativeButton={false} tabIndex={-1}>
           <BaseChip
-            label={`{{${campaignVariable.name}}}`}
+            label={`{{${variableWithFallback.name}}}`}
             title={variable}
             leftIcon={
-              isNonEmptyString(campaignVariable.fallback) ? undefined : (
+              isNonEmptyString(variableWithFallback.fallback) ? undefined : (
                 <Tooltip
                   content={t`Add a fallback value to avoid empty personalization`}
                   delay={TooltipDelay.shortDelay}
@@ -93,8 +93,8 @@ export const CampaignVariableChip = ({
           aria-label={t`Fallback value`}
         >
           <Dropdown.Section>
-            <CampaignVariableFallbackDropdownForm
-              campaignVariable={campaignVariable}
+            <VariableFallbackDropdownForm
+              variableWithFallback={variableWithFallback}
               onSubmit={handleFallbackSubmit}
             />
           </Dropdown.Section>

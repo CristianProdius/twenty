@@ -1,15 +1,15 @@
-import { getInitialCampaignVariableEditorContent } from '@/activities/emails/editor/utils/getInitialCampaignVariableEditorContent';
+import { getInitialVariableWithFallbackEditorContent } from '@/advanced-text-editor/utils/getInitialVariableWithFallbackEditorContent';
 import { parseEditorContent } from '@/workflow/workflow-variables/utils/parseEditorContent';
 
 const getVariableTags = (rawContent: string) =>
-  getInitialCampaignVariableEditorContent(rawContent)
+  getInitialVariableWithFallbackEditorContent(rawContent)
     .content?.[0]?.content?.filter(({ type }) => type === 'variableTag')
     .map(({ attrs }) => attrs?.variable);
 
 const roundTrip = (rawContent: string) =>
-  parseEditorContent(getInitialCampaignVariableEditorContent(rawContent));
+  parseEditorContent(getInitialVariableWithFallbackEditorContent(rawContent));
 
-describe('getInitialCampaignVariableEditorContent', () => {
+describe('getInitialVariableWithFallbackEditorContent', () => {
   it('should turn a variable with a fallback into a single chip', () => {
     const subject = 'Hi {{name.firstName | default: "there"}}, welcome!';
 

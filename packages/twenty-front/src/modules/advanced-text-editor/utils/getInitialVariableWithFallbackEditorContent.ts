@@ -1,18 +1,18 @@
 import { isNonEmptyString } from '@sniptt/guards';
 import type { JSONContent } from '@tiptap/react';
 import {
-  CAMPAIGN_VARIABLE_PATTERN,
   TIPTAP_NODE_TYPES,
+  VARIABLE_WITH_FALLBACK_PATTERN,
   isDefined,
 } from 'twenty-shared/utils';
 
-export const getInitialCampaignVariableEditorContent = (
+export const getInitialVariableWithFallbackEditorContent = (
   rawContent: string,
 ): JSONContent => {
   const paragraphContent: JSONContent[] = [];
   let textStartIndex = 0;
 
-  for (const match of rawContent.matchAll(CAMPAIGN_VARIABLE_PATTERN)) {
+  for (const match of rawContent.matchAll(VARIABLE_WITH_FALLBACK_PATTERN)) {
     const [variable, variableName] = match;
 
     if (!isDefined(variableName)) {

@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import { EMAIL_IMAGE_MIME_TYPES } from 'twenty-shared/constants';
 import { SidePanelPages } from 'twenty-shared/types';
 import {
-  formatCampaignVariable,
+  formatVariableWithFallback,
   isDefined,
   TIPTAP_NODE_TYPES,
 } from 'twenty-shared/utils';
@@ -19,7 +19,6 @@ import {
 import { themeCssVariables } from 'twenty-ui/theme';
 import { v4 } from 'uuid';
 
-import { findCampaignVariableFallback } from '@/activities/emails/editor/utils/findCampaignVariableFallback';
 import { useActiveEmailCampaignSubject } from '@/activities/emails/hooks/useActiveEmailCampaignSubject';
 import { useCampaignEmailEditorVariables } from '@/activities/emails/hooks/useCampaignEmailEditorVariables';
 import { useUploadEmailImage } from '@/activities/emails/hooks/useUploadEmailImage';
@@ -28,6 +27,7 @@ import { ADVANCED_TEXT_EDITOR_BLOCK_INSERTION_RECIPES } from '@/advanced-text-ed
 import { ADVANCED_TEXT_EDITOR_TEXT_INSERTION_ITEMS } from '@/advanced-text-editor/constants/AdvancedTextEditorTextInsertionItems';
 import { type AdvancedTextEditorBlockInsertionItem } from '@/advanced-text-editor/types/AdvancedTextEditorBlockCatalog';
 import { AdvancedTextEditorDraggableContent } from '@/advanced-text-editor/components/AdvancedTextEditorDraggableContent';
+import { findVariableFallback } from '@/advanced-text-editor/utils/findVariableFallback';
 import { insertUploadingImage } from '@/advanced-text-editor/utils/insertUploadingImage';
 import { useSidePanelMenu } from '@/side-panel/hooks/useSidePanelMenu';
 import { SidePanelStepListContainer } from '@/workflow/workflow-steps/components/SidePanelWorkflowSelectStepContainer';
@@ -64,11 +64,11 @@ export const EmailBlockInsertList = ({ editor }: EmailBlockInsertListProps) => {
       return variables.map(({ label, name }) => ({
         label,
         name,
-        variable: formatCampaignVariable({
+        variable: formatVariableWithFallback({
           name,
-          fallback: findCampaignVariableFallback({
-            subject,
-            bodyDocument,
+          fallback: findVariableFallback({
+            rawContent: subject,
+            editorContent: bodyDocument,
             name,
           }),
         }),
