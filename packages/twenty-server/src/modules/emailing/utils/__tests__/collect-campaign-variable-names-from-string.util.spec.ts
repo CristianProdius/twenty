@@ -21,7 +21,7 @@ describe('collectCampaignVariableNamesFromString', () => {
       collectCampaignVariableNamesFromString(`Hi ${variable}, welcome`),
     ).toThrow(
       expect.objectContaining({
-        code: EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_UNKNOWN_VARIABLES,
+        code: EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_NOT_SENDABLE,
         message: expect.stringContaining(
           `Malformed campaign variable: ${variable}`,
         ),

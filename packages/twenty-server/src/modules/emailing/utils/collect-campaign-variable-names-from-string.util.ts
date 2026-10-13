@@ -28,7 +28,7 @@ export const collectCampaignVariableNamesFromString = (
     if (!isDefined(campaignVariable)) {
       throw new EmailingDomainException(
         `Malformed campaign variable: ${variable}. Expected ${CAMPAIGN_VARIABLE_SYNTAX}`,
-        EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_UNKNOWN_VARIABLES,
+        EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_NOT_SENDABLE,
         {
           userFriendlyMessage: msg`This campaign has a variable written in the wrong format: ${variable}. Write it as ${CAMPAIGN_VARIABLE_SYNTAX}.`,
         },
