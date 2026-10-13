@@ -4,7 +4,11 @@ import { type Editor, type JSONContent } from '@tiptap/core';
 import { useRef } from 'react';
 import { EMAIL_IMAGE_MIME_TYPES } from 'twenty-shared/constants';
 import { SidePanelPages } from 'twenty-shared/types';
-import { isDefined, TIPTAP_NODE_TYPES } from 'twenty-shared/utils';
+import {
+  formatCampaignVariable,
+  isDefined,
+  TIPTAP_NODE_TYPES,
+} from 'twenty-shared/utils';
 import { MenuItem } from 'twenty-ui/components/navigation';
 import {
   type IconComponent,
@@ -15,8 +19,11 @@ import {
 import { themeCssVariables } from 'twenty-ui/theme';
 import { v4 } from 'uuid';
 
+import { findCampaignVariableFallback } from '@/activities/emails/editor/utils/findCampaignVariableFallback';
+import { useActiveEmailCampaignSubject } from '@/activities/emails/hooks/useActiveEmailCampaignSubject';
 import { useCampaignEmailEditorVariables } from '@/activities/emails/hooks/useCampaignEmailEditorVariables';
 import { useUploadEmailImage } from '@/activities/emails/hooks/useUploadEmailImage';
+import { useLiveEditorState } from '@/advanced-text-editor/hooks/useLiveEditorState';
 import { ADVANCED_TEXT_EDITOR_BLOCK_INSERTION_RECIPES } from '@/advanced-text-editor/constants/AdvancedTextEditorBlockInsertionRecipes';
 import { ADVANCED_TEXT_EDITOR_TEXT_INSERTION_ITEMS } from '@/advanced-text-editor/constants/AdvancedTextEditorTextInsertionItems';
 import { type AdvancedTextEditorBlockInsertionItem } from '@/advanced-text-editor/types/AdvancedTextEditorBlockCatalog';
@@ -48,6 +55,26 @@ export const EmailBlockInsertList = ({ editor }: EmailBlockInsertListProps) => {
   const { i18n, t } = useLingui();
   const imageFileInputRef = useRef<HTMLInputElement>(null);
   const { variables } = useCampaignEmailEditorVariables();
+  const subject = useActiveEmailCampaignSubject();
+  const variablesWithExistingFallback = useLiveEditorState(
+    editor,
+    (currentEditor) => {
+      const bodyDocument = currentEditor.getJSON();
+
+      return variables.map(({ label, name }) => ({
+        label,
+        name,
+        variable: formatCampaignVariable({
+          name,
+          fallback: findCampaignVariableFallback({
+            subject,
+            bodyDocument,
+            name,
+          }),
+        }),
+      }));
+    },
+  );
   const { uploadEmailImage } = useUploadEmailImage();
   const { navigateSidePanelMenu } = useSidePanelMenu();
 
@@ -156,20 +183,20 @@ export const EmailBlockInsertList = ({ editor }: EmailBlockInsertListProps) => {
         themeCssVariables.color.orange9,
       )}
 
-      {isNonEmptyArray(variables) && (
+      {isNonEmptyArray(variablesWithExistingFallback) && (
         <>
           <SidePanelWorkflowSelectStepTitle>
             {t`Variables`}
           </SidePanelWorkflowSelectStepTitle>
-          {variables.map(({ label, value }) =>
+          {variablesWithExistingFallback.map(({ label, name, variable }) =>
             renderDraggableItem({
-              id: value,
+              id: name,
               Icon: IconVariable,
               iconColor: themeCssVariables.color.blue9,
               label,
               content: {
                 type: TIPTAP_NODE_TYPES.VARIABLE_TAG,
-                attrs: { variable: value },
+                attrs: { variable },
               },
             }),
           )}

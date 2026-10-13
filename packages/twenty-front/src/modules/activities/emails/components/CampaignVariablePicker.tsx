@@ -1,15 +1,20 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
+import { formatCampaignVariable } from 'twenty-shared/utils';
 import { Dropdown } from 'twenty-ui/components/navigation';
 import { IconVariable, IconVariablePlus } from 'twenty-ui/icon';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme';
 
+import { findCampaignVariableFallback } from '@/activities/emails/editor/utils/findCampaignVariableFallback';
+import { useActiveEmailCampaignSubject } from '@/activities/emails/hooks/useActiveEmailCampaignSubject';
 import { useCampaignEmailEditorVariables } from '@/activities/emails/hooks/useCampaignEmailEditorVariables';
+import { activeEmailEditorState } from '@/activities/emails/states/activeEmailEditorState';
 import { SelectOptionIcon } from '@/ui/input/components/SelectOptionIcon';
 import { type VariablePickerComponent } from '@/ui/input/types/VariablePickerComponent';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownRoot } from '@/ui/layout/dropdown/components/DropdownRoot';
 import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 const StyledCampaignVariablePickerContainer = styled.div`
   align-items: center;
@@ -35,6 +40,20 @@ export const CampaignVariablePicker: VariablePickerComponent = ({
   const { t } = useLingui();
   const theme = useTheme();
   const { variables } = useCampaignEmailEditorVariables();
+  const subject = useActiveEmailCampaignSubject();
+  const activeEmailEditor = useAtomStateValue(activeEmailEditorState);
+
+  const handleVariableSelect = (name: string) =>
+    onVariableSelect(
+      formatCampaignVariable({
+        name,
+        fallback: findCampaignVariableFallback({
+          subject,
+          bodyDocument: activeEmailEditor?.getJSON(),
+          name,
+        }),
+      }),
+    );
 
   return (
     <DropdownRoot
@@ -54,11 +73,11 @@ export const CampaignVariablePicker: VariablePickerComponent = ({
         width={GenericDropdownContentWidth.Large}
       >
         <Dropdown.Section scrollable>
-          {variables.map(({ label, value }) => (
+          {variables.map(({ label, name }) => (
             <Dropdown.OptionItem
-              key={value}
+              key={name}
               startIcon={<SelectOptionIcon Icon={IconVariable} />}
-              onSelect={() => onVariableSelect(value)}
+              onSelect={() => handleVariableSelect(name)}
             >
               {label}
             </Dropdown.OptionItem>

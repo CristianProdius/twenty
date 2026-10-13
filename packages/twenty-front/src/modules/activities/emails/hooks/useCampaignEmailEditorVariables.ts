@@ -12,10 +12,10 @@ export const useCampaignEmailEditorVariables = () => {
 
   const variables = [
     ...listCampaignVariablesForFields(personObjectMetadataItem.fields).map(
-      ({ label, name }) => ({ label, value: `{{${name}}}` }),
+      ({ label, name }) => ({ label, name }),
     ),
-    { label: t`Full name`, value: '{{fullName}}' },
-    { label: t`Person ID`, value: '{{personId}}' },
+    { label: t`Full name`, name: 'fullName' },
+    { label: t`Person ID`, name: 'personId' },
   ];
 
   return { variables };

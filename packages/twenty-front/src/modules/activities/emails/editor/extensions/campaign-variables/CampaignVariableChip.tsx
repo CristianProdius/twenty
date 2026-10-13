@@ -31,7 +31,6 @@ export const CampaignVariableChip = ({
   deleteNode,
   editor,
   node,
-  selected,
   updateAttributes,
 }: CampaignVariableChipProps) => {
   const { t } = useLingui();
@@ -63,7 +62,6 @@ export const CampaignVariableChip = ({
           <BaseChip
             label={`{{${campaignVariable.name}}}`}
             title={variable}
-            selected={selected}
             leftIcon={
               isNonEmptyString(campaignVariable.fallback) ? undefined : (
                 <Tooltip
