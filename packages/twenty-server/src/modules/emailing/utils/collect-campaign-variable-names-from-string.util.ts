@@ -10,9 +10,6 @@ import {
   EmailingDomainExceptionCode,
 } from 'src/engine/core-modules/emailing-domain/exceptions/emailing-domain.exception';
 
-const CAMPAIGN_VARIABLE_SYNTAX =
-  '{{jobTitle}} or {{jobTitle | default: "there"}}';
-
 export const collectCampaignVariableNamesFromString = (
   value: unknown,
 ): Set<string> => {
@@ -29,11 +26,13 @@ export const collectCampaignVariableNamesFromString = (
       parseTemplateVariableWithFallback(rawTemplateVariable);
 
     if (!isDefined(campaignVariable)) {
+      const expectedSyntax = '{{jobTitle}} or {{jobTitle | default: "there"}}';
+
       throw new EmailingDomainException(
-        `Malformed campaign variable: ${rawTemplateVariable}. Expected ${CAMPAIGN_VARIABLE_SYNTAX}`,
+        `Malformed campaign variable: ${rawTemplateVariable}. Expected ${expectedSyntax}`,
         EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_NOT_SENDABLE,
         {
-          userFriendlyMessage: msg`This campaign has a variable written in the wrong format: ${rawTemplateVariable}. Write it as ${CAMPAIGN_VARIABLE_SYNTAX}.`,
+          userFriendlyMessage: msg`This campaign has a variable written in the wrong format: ${rawTemplateVariable}. Write it as ${expectedSyntax}.`,
         },
       );
     }
