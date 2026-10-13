@@ -3,17 +3,22 @@ import { useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
 import { useId } from 'react';
-import { isDefined, parseVariableWithFallback } from 'twenty-shared/utils';
+import {
+  formatVariableWithFallback,
+  isDefined,
+  parseVariableWithFallback,
+} from 'twenty-shared/utils';
 import { Dropdown } from 'twenty-ui/components/navigation';
 import { IconAlertTriangle } from 'twenty-ui/icon';
 import { Tooltip } from 'twenty-ui/primitives/surfaces';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme';
 
+import { TextInputDropdownForm } from '@/advanced-text-editor/components/TextInputDropdownForm';
 import { VariableChip } from '@/advanced-text-editor/extensions/variable-tag/VariableChip';
-import { VariableFallbackDropdownForm } from '@/advanced-text-editor/extensions/variable-tag/VariableFallbackDropdownForm';
 import { BaseChip } from '@/ui/input/components/BaseChip';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownRoot } from '@/ui/layout/dropdown/components/DropdownRoot';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { TooltipDelay } from '@/ui/layout/tooltip/constants/TooltipDelay';
 
 const StyledWrapper = styled.span`
@@ -36,6 +41,7 @@ export const VariableWithFallbackChip = ({
   const { t } = useLingui();
   const theme = useTheme();
   const dropdownId = `variable-fallback-dropdown-${useId()}`;
+  const { closeDropdown } = useCloseDropdown();
 
   const variable =
     typeof node.attrs.variable === 'string' ? node.attrs.variable : '';
@@ -47,7 +53,13 @@ export const VariableWithFallbackChip = ({
     );
   }
 
-  const handleFallbackSubmit = (nextVariable: string) => {
+  const handleFallbackSubmit = (fallback: string) => {
+    const nextVariable = formatVariableWithFallback({
+      name: variableWithFallback.name,
+      fallback,
+    });
+
+    closeDropdown(dropdownId);
     editor.commands.focus();
 
     if (nextVariable !== variable) {
@@ -93,8 +105,9 @@ export const VariableWithFallbackChip = ({
           aria-label={t`Fallback value`}
         >
           <Dropdown.Section>
-            <VariableFallbackDropdownForm
-              variableWithFallback={variableWithFallback}
+            <TextInputDropdownForm
+              defaultValue={variableWithFallback.fallback ?? ''}
+              label={t`Fallback value`}
               onSubmit={handleFallbackSubmit}
             />
           </Dropdown.Section>

@@ -1,20 +1,15 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
-import { formatVariableWithFallback } from 'twenty-shared/utils';
 import { Dropdown } from 'twenty-ui/components/navigation';
 import { IconVariable, IconVariablePlus } from 'twenty-ui/icon';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme';
 
-import { useActiveEmailCampaignSubject } from '@/activities/emails/hooks/useActiveEmailCampaignSubject';
 import { useCampaignEmailEditorVariables } from '@/activities/emails/hooks/useCampaignEmailEditorVariables';
-import { activeEmailEditorState } from '@/activities/emails/states/activeEmailEditorState';
-import { findVariableFallback } from '@/advanced-text-editor/utils/findVariableFallback';
 import { SelectOptionIcon } from '@/ui/input/components/SelectOptionIcon';
 import { type VariablePickerComponent } from '@/ui/input/types/VariablePickerComponent';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownRoot } from '@/ui/layout/dropdown/components/DropdownRoot';
 import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 const StyledCampaignVariablePickerContainer = styled.div`
   align-items: center;
@@ -39,21 +34,8 @@ export const CampaignVariablePicker: VariablePickerComponent = ({
 }) => {
   const { t } = useLingui();
   const theme = useTheme();
-  const { variables } = useCampaignEmailEditorVariables();
-  const subject = useActiveEmailCampaignSubject();
-  const activeEmailEditor = useAtomStateValue(activeEmailEditorState);
-
-  const handleVariableSelect = (name: string) =>
-    onVariableSelect(
-      formatVariableWithFallback({
-        name,
-        fallback: findVariableFallback({
-          rawContent: subject,
-          editorContent: activeEmailEditor?.getJSON(),
-          name,
-        }),
-      }),
-    );
+  const { variables, formatVariableWithExistingFallback } =
+    useCampaignEmailEditorVariables();
 
   return (
     <DropdownRoot
@@ -77,7 +59,9 @@ export const CampaignVariablePicker: VariablePickerComponent = ({
             <Dropdown.OptionItem
               key={name}
               startIcon={<SelectOptionIcon Icon={IconVariable} />}
-              onSelect={() => handleVariableSelect(name)}
+              onSelect={() =>
+                onVariableSelect(formatVariableWithExistingFallback(name))
+              }
             >
               {label}
             </Dropdown.OptionItem>

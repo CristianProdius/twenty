@@ -1,4 +1,5 @@
 import { getInitialEditorContent } from '@/advanced-text-editor/utils/getInitialEditorContent';
+import { VARIABLE_WITH_FALLBACK_PATTERN } from 'twenty-shared/utils';
 
 describe('getInitialEditorContent', () => {
   it('should handle single line text', () => {
@@ -280,6 +281,21 @@ describe('getInitialEditorContent', () => {
   "type": "doc",
 }
 `);
+  });
+
+  it('should keep a variable with a fallback in one tag when given its pattern', () => {
+    const variable = '{{jobTitle | default: "the \\"boss\\" }} {x}"}}';
+
+    expect(
+      getInitialEditorContent(
+        `For ${variable} only`,
+        VARIABLE_WITH_FALLBACK_PATTERN,
+      ).content?.[0]?.content,
+    ).toEqual([
+      { type: 'text', text: 'For ' },
+      { type: 'variableTag', attrs: { variable } },
+      { type: 'text', text: ' only' },
+    ]);
   });
 
   it('should handle trailing newlines', () => {

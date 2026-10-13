@@ -1,6 +1,5 @@
 import { VariableWithFallbackTag } from '@/advanced-text-editor/extensions/variable-tag/VariableWithFallbackTag';
 import { getInitialEditorContent } from '@/advanced-text-editor/utils/getInitialEditorContent';
-import { getInitialVariableWithFallbackEditorContent } from '@/advanced-text-editor/utils/getInitialVariableWithFallbackEditorContent';
 import { WorkflowVariableTag } from '@/workflow/workflow-variables/extensions/WorkflowVariableTag';
 import Document from '@tiptap/extension-document';
 import HardBreak from '@tiptap/extension-hard-break';
@@ -12,7 +11,12 @@ import { Slice } from '@tiptap/pm/model';
 
 import { type Editor, useEditor } from '@tiptap/react';
 import { useEffect } from 'react';
-import { isDefined, parseJson } from 'twenty-shared/utils';
+import {
+  isDefined,
+  parseJson,
+  VARIABLE_WITH_FALLBACK_PATTERN,
+} from 'twenty-shared/utils';
+import { CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX } from 'twenty-shared/workflow';
 import { type JsonValue } from 'type-fest';
 
 type UseTextVariableEditorProps = {
@@ -48,9 +52,9 @@ export const useTextVariableEditor = ({
   const variableTagExtension = enableVariableFallback
     ? VariableWithFallbackTag
     : WorkflowVariableTag;
-  const getInitialContent = enableVariableFallback
-    ? getInitialVariableWithFallbackEditorContent
-    : getInitialEditorContent;
+  const variableTagPattern = enableVariableFallback
+    ? VARIABLE_WITH_FALLBACK_PATTERN
+    : CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX;
 
   const editor = useEditor({
     extensions: [
@@ -71,7 +75,7 @@ export const useTextVariableEditor = ({
       UndoRedo,
     ],
     content: isDefined(defaultValue)
-      ? getInitialContent(defaultValue)
+      ? getInitialEditorContent(defaultValue, variableTagPattern)
       : undefined,
     editable: !readonly,
     onUpdate: ({ editor }) => {
@@ -115,7 +119,9 @@ export const useTextVariableEditor = ({
           const formattedJson = multiline
             ? JSON.stringify(parsedJson, null, 2)
             : JSON.stringify(parsedJson);
-          const docNode = schema.nodeFromJSON(getInitialContent(formattedJson));
+          const docNode = schema.nodeFromJSON(
+            getInitialEditorContent(formattedJson, variableTagPattern),
+          );
           const inlineContent = docNode.firstChild?.content;
 
           if (inlineContent && inlineContent.size > 0) {
@@ -126,7 +132,9 @@ export const useTextVariableEditor = ({
         }
 
         if (multiline && plainText.includes('\n')) {
-          const docNode = schema.nodeFromJSON(getInitialContent(plainText));
+          const docNode = schema.nodeFromJSON(
+            getInitialEditorContent(plainText, variableTagPattern),
+          );
           const inlineContent = docNode.firstChild?.content;
 
           if (inlineContent && inlineContent.size > 0) {
