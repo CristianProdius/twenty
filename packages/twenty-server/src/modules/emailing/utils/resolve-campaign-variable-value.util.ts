@@ -1,15 +1,18 @@
 import { isNonEmptyString } from '@sniptt/guards';
-import { isDefined, type VariableWithFallback } from 'twenty-shared/utils';
+import {
+  isDefined,
+  type TemplateVariableWithFallback,
+} from 'twenty-shared/utils';
 
 export const resolveCampaignVariableValue = ({
-  variables,
+  valuesByVariableName,
   campaignVariable: { name, fallback },
 }: {
-  variables: Record<string, string>;
-  campaignVariable: VariableWithFallback;
+  valuesByVariableName: Record<string, string>;
+  campaignVariable: TemplateVariableWithFallback;
 }): string => {
-  const value = Object.prototype.hasOwnProperty.call(variables, name)
-    ? (variables[name] ?? '')
+  const value = Object.prototype.hasOwnProperty.call(valuesByVariableName, name)
+    ? (valuesByVariableName[name] ?? '')
     : '';
 
   return isDefined(fallback) && !isNonEmptyString(value.trim())

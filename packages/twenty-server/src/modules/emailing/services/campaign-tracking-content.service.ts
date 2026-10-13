@@ -8,9 +8,9 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { toPlainText } from 'twenty-emails';
 import { ApiPath } from 'twenty-shared/types';
 import {
-  formatVariableWithFallback,
+  formatTemplateVariableWithFallback,
   isDefined,
-  type VariableWithFallback,
+  type TemplateVariableWithFallback,
 } from 'twenty-shared/utils';
 
 import { buildLogDriverUnsubscribeBaseUrl } from 'src/engine/core-modules/emailing-domain/drivers/log/utils/build-log-driver-unsubscribe-base-url.util';
@@ -58,7 +58,7 @@ type PrepareBatchArgs = {
   emailingDomainId: string;
   template: EmailingDomainEmailTemplate;
   plainTextSourceHtml: string;
-  campaignVariables: VariableWithFallback[];
+  campaignVariables: TemplateVariableWithFallback[];
   recipients: TrackingRecipient[];
 };
 
@@ -225,7 +225,7 @@ export class CampaignTrackingContentService {
   }: {
     workspaceId: string;
     urlTemplates: string[];
-    campaignVariables: VariableWithFallback[];
+    campaignVariables: TemplateVariableWithFallback[];
     recipients: TrackingRecipient[];
   }): Promise<Map<string, string>> {
     const linkByIdentity = new Map<
@@ -279,7 +279,7 @@ export class CampaignTrackingContentService {
     baseUrl: string;
     recipient: TrackingRecipient;
     urlTemplates: string[];
-    campaignVariables: VariableWithFallback[];
+    campaignVariables: TemplateVariableWithFallback[];
     shortLinkIdByIdentity: Map<string, string>;
     isOpenTrackingEnabled: boolean;
   }): Record<string, string> {
@@ -381,7 +381,7 @@ export class CampaignTrackingContentService {
     campaignVariables,
   }: {
     urlTemplate: string;
-    campaignVariables: VariableWithFallback[];
+    campaignVariables: TemplateVariableWithFallback[];
   }): string {
     return urlTemplate.replace(
       CAMPAIGN_BATCH_VARIABLE_TAG_PATTERN,
@@ -389,7 +389,7 @@ export class CampaignTrackingContentService {
         const campaignVariable = campaignVariables[Number(variableIndex)];
 
         return isDefined(campaignVariable)
-          ? formatVariableWithFallback(campaignVariable)
+          ? formatTemplateVariableWithFallback(campaignVariable)
           : tag;
       },
     );

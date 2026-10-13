@@ -192,7 +192,6 @@ export {
   relationFilterValueSchemaObject,
   jsonRelationFilterValueSchema,
 } from './filter/utils/validation-schemas/jsonRelationFilterValueSchema';
-export { formatVariableWithFallback } from './format-variable-with-fallback';
 export { formatBytes } from './format/formatBytes';
 export { formatToShortNumber } from './format/formatToShortNumber';
 export { fromArrayToUniqueKeyRecord } from './from-array-to-unique-key-record.util';
@@ -217,7 +216,6 @@ export { fastDeepEqual } from './json/fast-deep-equal';
 export { getAppPath } from './navigation/getAppPath';
 export { getSettingsPath } from './navigation/getSettingsPath';
 export { getPageLayoutWidgetHeightBehavior } from './pageLayout/getPageLayoutWidgetHeightBehavior';
-export { parseVariableWithFallback } from './parse-variable-with-fallback';
 export { parseJson } from './parseJson';
 export { removePropertiesFromRecord } from './removePropertiesFromRecord';
 export { removeUndefinedFields } from './removeUndefinedFields';
@@ -241,6 +239,10 @@ export { pascalToKebab } from './strings/pascalToKebab';
 export { stringifySafely } from './strings/stringifySafely';
 export { uncapitalize } from './strings/uncapitalize';
 export { getSubdomainSlugFromDisplayName } from './subdomain/getSubdomainSlugFromDisplayName';
+export { formatTemplateVariableWithFallback } from './template-variable/format-template-variable-with-fallback';
+export { parseTemplateVariableWithFallback } from './template-variable/parse-template-variable-with-fallback';
+export { TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN } from './template-variable/template-variable-with-fallback-pattern';
+export type { TemplateVariableWithFallback } from './template-variable/template-variable-with-fallback';
 export type { CanvasTheme } from './tiptap/canvas-theme';
 export { CANVAS_THEME_DEFAULTS } from './tiptap/canvas-theme';
 export { convertEmailBodyToEmailDocument } from './tiptap/convert-email-body-to-email-document';
@@ -365,7 +367,5 @@ export {
   resolveInput,
   resolveStringTemplate,
 } from './variable-resolver';
-export { VARIABLE_WITH_FALLBACK_PATTERN } from './variable-with-fallback-pattern';
-export type { VariableWithFallback } from './variable-with-fallback';
 export { getViewLayoutFromViewType } from './views/getViewLayoutFromViewType';
 export { isWidgetViewType } from './views/isWidgetViewType';
