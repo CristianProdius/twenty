@@ -1,12 +1,12 @@
 import { msg } from '@lingui/core/macro';
 import {
-  CAMPAIGN_VARIABLE_PATTERN,
-  type CampaignVariable,
   type EmailDocumentStringContext,
   isDefined,
-  parseCampaignVariable,
   parseCanonicalEmailDocument,
   parseJson,
+  parseVariableWithFallback,
+  VARIABLE_WITH_FALLBACK_PATTERN,
+  type VariableWithFallback,
 } from 'twenty-shared/utils';
 
 import { compileOutboundEmailContent } from 'src/engine/core-modules/email/utils/compile-outbound-email-content.util';
@@ -53,11 +53,11 @@ export const compileCampaignBatchTemplate = async ({
 }): Promise<{
   template: EmailingDomainEmailTemplate;
   plainTextSourceHtml: string;
-  campaignVariables: CampaignVariable[];
+  campaignVariables: VariableWithFallback[];
 }> => {
-  const campaignVariables: CampaignVariable[] = [];
+  const campaignVariables: VariableWithFallback[] = [];
 
-  const indexOfVariable = (campaignVariable: CampaignVariable): number => {
+  const indexOfVariable = (campaignVariable: VariableWithFallback): number => {
     const existingIndex = campaignVariables.findIndex(
       ({ name, fallback }) =>
         name === campaignVariable.name &&
@@ -72,8 +72,8 @@ export const compileCampaignBatchTemplate = async ({
   };
 
   const toTags = (value: string, tagFamily: CampaignBatchTagFamily): string =>
-    value.replace(CAMPAIGN_VARIABLE_PATTERN, (variable) => {
-      const campaignVariable = parseCampaignVariable(variable);
+    value.replace(VARIABLE_WITH_FALLBACK_PATTERN, (variable) => {
+      const campaignVariable = parseVariableWithFallback(variable);
 
       if (!isDefined(campaignVariable)) {
         return variable;

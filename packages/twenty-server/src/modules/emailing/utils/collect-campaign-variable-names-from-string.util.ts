@@ -1,8 +1,8 @@
 import { msg } from '@lingui/core/macro';
 import {
-  CAMPAIGN_VARIABLE_PATTERN,
   isDefined,
-  parseCampaignVariable,
+  parseVariableWithFallback,
+  VARIABLE_WITH_FALLBACK_PATTERN,
 } from 'twenty-shared/utils';
 
 import {
@@ -22,8 +22,8 @@ export const collectCampaignVariableNamesFromString = (
     return names;
   }
 
-  for (const [variable] of value.matchAll(CAMPAIGN_VARIABLE_PATTERN)) {
-    const campaignVariable = parseCampaignVariable(variable);
+  for (const [variable] of value.matchAll(VARIABLE_WITH_FALLBACK_PATTERN)) {
+    const campaignVariable = parseVariableWithFallback(variable);
 
     if (!isDefined(campaignVariable)) {
       throw new EmailingDomainException(

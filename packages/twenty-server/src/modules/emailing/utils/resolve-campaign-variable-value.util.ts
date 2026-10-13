@@ -1,11 +1,11 @@
-import { type CampaignVariable, isDefined } from 'twenty-shared/utils';
+import { isDefined, type VariableWithFallback } from 'twenty-shared/utils';
 
 export const resolveCampaignVariableValue = ({
   variables,
   campaignVariable: { name, fallback },
 }: {
   variables: Record<string, string>;
-  campaignVariable: CampaignVariable;
+  campaignVariable: VariableWithFallback;
 }): string => {
   const value = Object.prototype.hasOwnProperty.call(variables, name)
     ? (variables[name] ?? '')
