@@ -48,14 +48,10 @@ type EmailBlockInsertListProps = {
 export const EmailBlockInsertList = ({ editor }: EmailBlockInsertListProps) => {
   const { i18n, t } = useLingui();
   const imageFileInputRef = useRef<HTMLInputElement>(null);
-  const { variables, formatTemplateVariableWithExistingFallback } =
+  const { listVariablesWithExistingFallback } =
     useCampaignEmailEditorVariables();
   const variablesWithExistingFallback = useLiveEditorState(editor, () =>
-    variables.map(({ label, name }) => ({
-      label,
-      name,
-      rawTemplateVariable: formatTemplateVariableWithExistingFallback(name),
-    })),
+    listVariablesWithExistingFallback(),
   );
   const { uploadEmailImage } = useUploadEmailImage();
   const { navigateSidePanelMenu } = useSidePanelMenu();

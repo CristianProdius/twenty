@@ -7,10 +7,9 @@ import {
   parseTemplateVariableWithFallback,
 } from 'twenty-shared/utils';
 
-type FindTemplateVariableFallbackArgs = {
+type FindTemplateVariableFallbacksByNameArgs = {
   rawContent: string;
   editorContent: JSONContent | undefined;
-  name: string;
 };
 
 const listEditorContentRawTemplateVariables = (node: JSONContent): string[] => [
@@ -21,11 +20,10 @@ const listEditorContentRawTemplateVariables = (node: JSONContent): string[] => [
   ...(node.content ?? []).flatMap(listEditorContentRawTemplateVariables),
 ];
 
-export const findTemplateVariableFallback = ({
+export const findTemplateVariableFallbacksByName = ({
   rawContent,
   editorContent,
-  name,
-}: FindTemplateVariableFallbackArgs): string | undefined => {
+}: FindTemplateVariableFallbacksByNameArgs): Map<string, string> => {
   const rawContentRawTemplateVariables = Array.from(
     rawContent.matchAll(TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN),
     ([rawTemplateVariable]) => rawTemplateVariable,
@@ -33,17 +31,28 @@ export const findTemplateVariableFallback = ({
   const editorContentRawTemplateVariables = isDefined(editorContent)
     ? listEditorContentRawTemplateVariables(editorContent)
     : [];
+  const fallbacksByName = new Map<string, string>();
 
-  return [
+  for (const rawTemplateVariable of [
     ...rawContentRawTemplateVariables,
     ...editorContentRawTemplateVariables,
-  ]
-    .map((rawTemplateVariable) =>
-      parseTemplateVariableWithFallback(rawTemplateVariable),
-    )
-    .find(
-      (templateVariableWithFallback) =>
-        templateVariableWithFallback?.name === name &&
-        isNonEmptyString(templateVariableWithFallback.fallback),
-    )?.fallback;
+  ]) {
+    const templateVariableWithFallback =
+      parseTemplateVariableWithFallback(rawTemplateVariable);
+
+    if (
+      !isDefined(templateVariableWithFallback) ||
+      !isNonEmptyString(templateVariableWithFallback.fallback) ||
+      fallbacksByName.has(templateVariableWithFallback.name)
+    ) {
+      continue;
+    }
+
+    fallbacksByName.set(
+      templateVariableWithFallback.name,
+      templateVariableWithFallback.fallback,
+    );
+  }
+
+  return fallbacksByName;
 };
