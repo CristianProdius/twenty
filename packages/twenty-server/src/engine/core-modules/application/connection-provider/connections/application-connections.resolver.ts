@@ -9,10 +9,12 @@ import { Args, ID, Mutation, Query } from '@nestjs/graphql';
 import { MetadataResolver } from 'src/engine/api/graphql/graphql-config/decorators/metadata-resolver.decorator';
 import { ConnectionProviderGraphqlApiExceptionInterceptor } from 'src/engine/core-modules/application/connection-provider/interceptors/connection-provider-graphql-api-exception.interceptor';
 import { AppConnectionObjectDto } from 'src/engine/core-modules/application/connection-provider/connections/dtos/app-connection.object';
+import { CreateAppStaticConnectionInput } from 'src/engine/core-modules/application/connection-provider/connections/dtos/create-app-static-connection.input';
 import { ListAppConnectionsInput } from 'src/engine/core-modules/application/connection-provider/connections/dtos/list-app-connections.input';
 import { ReportAppConnectionAuthFailureInput } from 'src/engine/core-modules/application/connection-provider/connections/dtos/report-app-connection-auth-failure.input';
 import { ApplicationConnectionAuthFailureService } from 'src/engine/core-modules/application/connection-provider/connections/services/application-connection-auth-failure.service';
 import { ApplicationConnectionsListService } from 'src/engine/core-modules/application/connection-provider/connections/services/application-connections-list.service';
+import { ApplicationStaticConnectionsService } from 'src/engine/core-modules/application/connection-provider/connections/services/application-static-connections.service';
 import { type FlatApplication } from 'src/engine/core-modules/application/types/flat-application.type';
 import { type FlatWorkspace } from 'src/engine/core-modules/workspace/types/flat-workspace.type';
 import { AuthApplication } from 'src/engine/decorators/auth/auth-application.decorator';
@@ -40,6 +42,7 @@ export class ApplicationConnectionsResolver {
   constructor(
     private readonly listService: ApplicationConnectionsListService,
     private readonly authFailureService: ApplicationConnectionAuthFailureService,
+    private readonly staticConnectionsService: ApplicationStaticConnectionsService,
   ) {}
 
   @Query(() => [AppConnectionObjectDto])
@@ -91,5 +94,23 @@ export class ApplicationConnectionsResolver {
     });
 
     return true;
+  }
+
+  @Mutation(() => AppConnectionObjectDto)
+  async createAppStaticConnection(
+    @AuthApplication() application: FlatApplication,
+    @AuthWorkspace() workspace: FlatWorkspace,
+    @AuthUserWorkspaceId({ allowUndefined: true })
+    userWorkspaceId: string | undefined,
+    @Args('input') input: CreateAppStaticConnectionInput,
+  ): Promise<AppConnectionObjectDto> {
+    return this.staticConnectionsService.createOrGet({
+      applicationId: application.id,
+      workspaceId: workspace.id,
+      requestUserWorkspaceId: userWorkspaceId ?? null,
+      providerName: input.providerName,
+      handle: input.handle,
+      displayName: input.displayName,
+    });
   }
 }

@@ -150,4 +150,25 @@ describe('fromConnectionProviderManifestToUniversalFlatConnectionProvider', () =
     expect(result.oauthConfig?.tokenRequestContentType).toBe('json');
     expect(result.oauthConfig?.usePkce).toBe(true);
   });
+
+  it('stores a null oauthConfig for static providers', () => {
+    const result =
+      fromConnectionProviderManifestToUniversalFlatConnectionProvider({
+        connectionProviderManifest: {
+          universalIdentifier: PROVIDER_UID,
+          name: 'telegram-bot',
+          displayName: 'Telegram Bot',
+          type: 'static',
+        },
+        applicationUniversalIdentifier: APP_UID,
+        now: NOW,
+      });
+
+    expect(result).toMatchObject({
+      type: 'static',
+      name: 'telegram-bot',
+      displayName: 'Telegram Bot',
+      oauthConfig: null,
+    });
+  });
 });

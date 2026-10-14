@@ -47,6 +47,8 @@ export { listConnections } from '@/sdk/logic-function/connections/list-connectio
 export type { ListConnectionsFilter } from '@/sdk/logic-function/connections/list-connections';
 export { findConnectionForRequest } from '@/sdk/logic-function/connections/find-connection-for-request';
 export { reportConnectionAuthFailure } from '@/sdk/logic-function/connections/report-connection-auth-failure';
+export { createStaticConnection } from '@/sdk/logic-function/connections/create-static-connection';
+export type { CreateStaticConnectionInput } from '@/sdk/logic-function/connections/create-static-connection';
 export { AppConnectionAuthFailedError } from '@/sdk/logic-function/connections/errors/app-connection-auth-failed.error';
 export type { AppConnection } from '@/sdk/logic-function/connections/types/app-connection.type';
 

@@ -114,4 +114,45 @@ describe('defineConnectionProvider', () => {
       ).toBe(true);
     },
   );
+
+  it('returns success for a valid static provider', () => {
+    const result = defineConnectionProvider({
+      universalIdentifier: '99fcd8e8-fbb1-4d2c-bc16-7c61ef3eaaaa',
+      name: 'telegram-bot',
+      displayName: 'Telegram Bot',
+      type: 'static',
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.errors).toEqual([]);
+  });
+
+  it('rejects a static provider that also declares oauth', () => {
+    const result = defineConnectionProvider({
+      universalIdentifier: '99fcd8e8-fbb1-4d2c-bc16-7c61ef3eaaaa',
+      name: 'telegram-bot',
+      displayName: 'Telegram Bot',
+      type: 'static',
+      oauth: baseValidConfig.oauth,
+    } as Parameters<typeof defineConnectionProvider>[0]);
+
+    expect(result.success).toBe(false);
+    expect(
+      result.errors.some((error) =>
+        error.includes("must not declare an `oauth` config block"),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects an unsupported type', () => {
+    const result = defineConnectionProvider({
+      ...baseValidConfig,
+      type: 'apiKey',
+    } as Parameters<typeof defineConnectionProvider>[0]);
+
+    expect(result.success).toBe(false);
+    expect(
+      result.errors.some((error) => error.includes('is not supported')),
+    ).toBe(true);
+  });
 });

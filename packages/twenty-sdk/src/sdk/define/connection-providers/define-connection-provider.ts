@@ -5,7 +5,7 @@ import { type ConnectionProviderManifest } from 'twenty-shared/application';
 import { isDefined } from 'twenty-shared/utils';
 
 const PROVIDER_NAME_PATTERN = /^[a-z][a-z0-9-]*$/;
-const SUPPORTED_TYPES = ['oauth'] as const;
+const SUPPORTED_TYPES = ['oauth', 'static'] as const;
 
 type ConnectionProviderLifecycleHookKey = Extract<
   keyof ConnectionProviderManifest,
@@ -90,6 +90,15 @@ export const defineConnectionProvider: DefineEntity<
         errors.push('OAuth connection provider must declare a scopes array');
       }
     }
+  }
+
+  if (
+    config.type === 'static' &&
+    isDefined((config as { oauth?: unknown }).oauth)
+  ) {
+    errors.push(
+      "Connection provider with type 'static' must not declare an `oauth` config block",
+    );
   }
 
   return createValidationResult({ config, errors });

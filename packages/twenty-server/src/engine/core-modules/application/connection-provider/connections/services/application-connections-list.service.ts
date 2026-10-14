@@ -234,6 +234,22 @@ export class ApplicationConnectionsListService {
       return null;
     }
 
+    if (provider.type === 'static') {
+      return {
+        id: account.id,
+        providerName: provider.name,
+        name: account.name ?? account.handle,
+        handle: account.handle,
+        visibility: account.visibility as 'user' | 'workspace',
+        userWorkspaceId: account.userWorkspaceId,
+        workspaceMemberId,
+        accessToken: '',
+        scopes: account.scopes ?? [],
+        authFailedAt: account.authFailedAt?.toISOString() ?? null,
+        authFailedReason: account.authFailedReason,
+      };
+    }
+
     try {
       const encryptedTokens = await this.refreshTokensService.resolveTokens(
         account,
