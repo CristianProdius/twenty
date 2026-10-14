@@ -108,6 +108,11 @@ export class ApplicationDTO {
   healthCheckLogicFunctionId?: string;
 
   @IsOptional()
+  @IsUUID()
+  @Field(() => UUIDScalarType, { nullable: true })
+  messageOutboundLogicFunctionId?: string;
+
+  @IsOptional()
   @Field(() => RoleDTO, { nullable: true })
   defaultLogicFunctionRole?: RoleDTO;
 

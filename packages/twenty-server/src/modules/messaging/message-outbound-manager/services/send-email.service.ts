@@ -73,6 +73,7 @@ export class SendEmailService {
       inReplyTo: data.inReplyTo,
       threadExternalId: data.threadExternalId,
       references: data.references,
+      messageChannelId: data.messageChannelId,
     };
   }
 

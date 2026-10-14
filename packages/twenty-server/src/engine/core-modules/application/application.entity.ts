@@ -26,6 +26,7 @@ import { FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
 import { ApplicationVariableEntity } from 'src/engine/core-modules/application/application-variable/application-variable.entity';
 import { PublicDomainEntity } from 'src/engine/core-modules/public-domain/public-domain.entity';
 import { ADD_HEALTH_CHECK_TO_APPLICATION_UPGRADE_COMMAND_NAME } from 'src/database/commands/upgrade-version-command/2-42/add-health-check-to-application-upgrade-command-name.constant';
+import { ADD_MESSAGE_OUTBOUND_LOGIC_FUNCTION_ID_TO_APPLICATION_UPGRADE_COMMAND_NAME } from 'src/database/commands/upgrade-version-command/2-46/add-message-outbound-logic-function-id-to-application-upgrade-command-name.constant';
 import { WasIntroducedInUpgrade } from 'src/engine/core-modules/upgrade/decorators/was-introduced-in-upgrade.decorator';
 import { AgentEntity } from 'src/engine/metadata-modules/ai/ai-agent/entities/agent.entity';
 import { CommandMenuItemEntity } from 'src/engine/metadata-modules/command-menu-item/entities/command-menu-item.entity';
@@ -167,6 +168,13 @@ export class ApplicationEntity extends WorkspaceRelatedEntity {
     upgradeCommandName: ADD_HEALTH_CHECK_TO_APPLICATION_UPGRADE_COMMAND_NAME,
   })
   healthCheckLogicFunctionId: string | null;
+
+  @Column({ nullable: true, type: 'uuid' })
+  @WasIntroducedInUpgrade({
+    upgradeCommandName:
+      ADD_MESSAGE_OUTBOUND_LOGIC_FUNCTION_ID_TO_APPLICATION_UPGRADE_COMMAND_NAME,
+  })
+  messageOutboundLogicFunctionId: string | null;
 
   @Column({ nullable: false, type: 'boolean', default: true })
   canBeUninstalled: boolean;

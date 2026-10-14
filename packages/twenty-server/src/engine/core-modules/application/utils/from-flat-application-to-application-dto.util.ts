@@ -17,6 +17,7 @@ export const fromFlatApplicationToApplicationDto = ({
   version,
   settingsCustomTabFrontComponentId,
   healthCheckLogicFunctionId,
+  messageOutboundLogicFunctionId,
 }: FlatApplication): ApplicationDTO => {
   return {
     canBeUninstalled,
@@ -36,5 +37,7 @@ export const fromFlatApplicationToApplicationDto = ({
     settingsCustomTabFrontComponentId:
       settingsCustomTabFrontComponentId ?? undefined,
     healthCheckLogicFunctionId: healthCheckLogicFunctionId ?? undefined,
+    messageOutboundLogicFunctionId:
+      messageOutboundLogicFunctionId ?? undefined,
   };
 };

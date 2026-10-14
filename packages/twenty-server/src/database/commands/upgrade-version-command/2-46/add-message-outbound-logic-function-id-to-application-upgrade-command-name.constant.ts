@@ -1,0 +1,2 @@
+export const ADD_MESSAGE_OUTBOUND_LOGIC_FUNCTION_ID_TO_APPLICATION_UPGRADE_COMMAND_NAME =
+  '2.46.0_AddMessageOutboundLogicFunctionIdToApplicationFastInstanceCommand_1791976000000';

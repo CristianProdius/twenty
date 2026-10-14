@@ -1,4 +1,5 @@
 import { type HealthCheckLogicFunctionApplicationManifest } from '@/application/healthCheckLogicFunctionApplicationType';
+import { type MessageOutboundApplicationManifest } from '@/application/messageOutboundApplicationType';
 import { type PostInstallLogicFunctionApplicationManifest } from '@/application/postInstallLogicFunctionApplicationType';
 import { type PreInstallLogicFunctionApplicationManifest } from '@/application/preInstallLogicFunctionApplicationType';
 import { type SettingsFrontComponentApplicationManifest } from '@/application/settingsFrontComponentApplicationType';
@@ -40,6 +41,7 @@ export type ApplicationManifest = SyncableEntityOptions & {
   preInstallLogicFunction?: PreInstallLogicFunctionApplicationManifest;
   uninstallLogicFunction?: UninstallLogicFunctionApplicationManifest;
   healthCheckLogicFunction?: HealthCheckLogicFunctionApplicationManifest;
+  messageOutbound?: MessageOutboundApplicationManifest;
   settingsFrontComponent?: SettingsFrontComponentApplicationManifest;
   frontComponentSharedDependencies?: FrontComponentSharedDependenciesManifest;
   /**

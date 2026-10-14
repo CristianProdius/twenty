@@ -357,6 +357,21 @@ export class ApplicationManifestMigrationService {
         })
       : null;
 
+    const messageOutboundLogicFunctionUniversalIdentifier =
+      manifest.application.messageOutbound?.logicFunctionUniversalIdentifier;
+
+    const messageOutboundLogicFunctionId = isDefined(
+      messageOutboundLogicFunctionUniversalIdentifier,
+    )
+      ? resolveApplicationReferenceIdOrThrow({
+          flatEntityMaps: refreshedFlatLogicFunctionMaps,
+          universalIdentifier: messageOutboundLogicFunctionUniversalIdentifier,
+          referenceLabel: 'message outbound logic function',
+          exceptionCode: ApplicationExceptionCode.LOGIC_FUNCTION_NOT_FOUND,
+          ownerApplicationId: ownerFlatApplication.id,
+        })
+      : null;
+
     const uninstallLogicFunctionUniversalIdentifier =
       manifest.application.uninstallLogicFunction?.universalIdentifier;
 
@@ -385,6 +400,10 @@ export class ApplicationManifestMigrationService {
       ...(isDefined(healthCheckLogicFunctionId) ||
       inferDeletionFromMissingEntities
         ? { healthCheckLogicFunctionId }
+        : {}),
+      ...(isDefined(messageOutboundLogicFunctionId) ||
+      inferDeletionFromMissingEntities
+        ? { messageOutboundLogicFunctionId }
         : {}),
       ...(isDefined(defaultRoleId) ? { defaultRoleId } : {}),
     });

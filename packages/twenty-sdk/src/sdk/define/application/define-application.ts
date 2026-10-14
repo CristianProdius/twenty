@@ -160,6 +160,16 @@ export const defineApplication: DefineEntity<ApplicationConfig> = (config) => {
     );
   }
 
+  if (isDefined(config.messageOutbound)) {
+    if (
+      !isNonEmptyString(config.messageOutbound.logicFunctionUniversalIdentifier)
+    ) {
+      errors.push(
+        'messageOutbound must declare a non-empty logicFunctionUniversalIdentifier',
+      );
+    }
+  }
+
   const { category } = config;
 
   if (isNonEmptyString(category) && !isKnownApplicationCategory(category)) {

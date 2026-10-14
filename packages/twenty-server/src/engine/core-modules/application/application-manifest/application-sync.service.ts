@@ -201,6 +201,7 @@ export class ApplicationSyncService {
       settingsCustomTabFrontComponentId: null,
       uninstallLogicFunctionId: null,
       healthCheckLogicFunctionId: null,
+      messageOutboundLogicFunctionId: null,
       uninstallHookCompletedForRequestedAt: null,
       canBeUninstalled: true,
       autoUpgrade: false,

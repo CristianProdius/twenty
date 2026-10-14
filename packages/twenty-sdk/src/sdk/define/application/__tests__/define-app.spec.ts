@@ -463,4 +463,37 @@ describe('defineApplication', () => {
       'Application must have a universalIdentifier',
     );
   });
+
+  it('should accept messageOutbound with a logic function universal identifier', () => {
+    const result = defineApplication({
+      universalIdentifier: 'a9faf5f8-cf7e-4f24-9d37-fd523c30febe',
+      displayName: 'My App',
+      description: 'My app description',
+      messageOutbound: {
+        logicFunctionUniversalIdentifier:
+          'b1c2d3e4-f5a6-4789-abcd-ef0123456789',
+      },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.config.messageOutbound).toEqual({
+      logicFunctionUniversalIdentifier: 'b1c2d3e4-f5a6-4789-abcd-ef0123456789',
+    });
+  });
+
+  it('should return error when messageOutbound lacks logicFunctionUniversalIdentifier', () => {
+    const result = defineApplication({
+      universalIdentifier: 'a9faf5f8-cf7e-4f24-9d37-fd523c30febe',
+      displayName: 'My App',
+      description: 'My app description',
+      messageOutbound: {
+        logicFunctionUniversalIdentifier: '',
+      },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.errors).toContain(
+      'messageOutbound must declare a non-empty logicFunctionUniversalIdentifier',
+    );
+  });
 });
