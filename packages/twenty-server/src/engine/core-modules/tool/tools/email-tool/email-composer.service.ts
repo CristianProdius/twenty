@@ -390,19 +390,6 @@ export class EmailComposerService {
       };
     }
 
-    const invalidEmails = this.validateEmails(recipients);
-
-    if (invalidEmails.length > 0) {
-      return {
-        success: false,
-        output: {
-          success: false,
-          message: `Invalid email addresses: ${invalidEmails.join(', ')}`,
-          error: `Invalid email addresses: ${invalidEmails.join(', ')}`,
-        },
-      };
-    }
-
     const toRecipientsDisplay = recipients.to.join(', ');
 
     if (!connectedAccountId) {
@@ -418,6 +405,21 @@ export class EmailComposerService {
       workspaceId,
       operation,
     });
+
+    if (connectedAccount.provider !== ConnectedAccountProvider.APP) {
+      const invalidEmails = this.validateEmails(recipients);
+
+      if (invalidEmails.length > 0) {
+        return {
+          success: false,
+          output: {
+            success: false,
+            message: `Invalid email addresses: ${invalidEmails.join(', ')}`,
+            error: `Invalid email addresses: ${invalidEmails.join(', ')}`,
+          },
+        };
+      }
+    }
 
     const messageChannel =
       connectedAccount.provider === ConnectedAccountProvider.EMAIL_GROUP

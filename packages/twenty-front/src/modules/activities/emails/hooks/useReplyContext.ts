@@ -5,7 +5,9 @@ import {
   type ReplyContext,
   type ReplyContextReady,
 } from '@/activities/emails/types/ReplyContext';
+import { getAppReplyToHandle } from '@/activities/emails/utils/getAppReplyToHandle';
 import { getReplyToRecipients } from '@/activities/emails/utils/getReplyToRecipients';
+import { ConnectedAccountProvider } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
 export type { ReplyContext, ReplyContextReady };
@@ -52,15 +54,25 @@ export const useReplyContext = (
       };
     }
 
-    const replyTo = getReplyToRecipients({
-      message: lastSentMessage,
-      connectedAccountHandle,
-    });
+    const isAppChannel =
+      connectedAccountProvider === ConnectedAccountProvider.APP;
+
+    const replyTo = isAppChannel
+      ? getAppReplyToHandle({
+          message: lastSentMessage,
+          connectedAccountHandle,
+        })
+      : getReplyToRecipients({
+          message: lastSentMessage,
+          connectedAccountHandle,
+        });
 
     const rawSubject = lastSentMessage.subject ?? '';
-    const subject = rawSubject.startsWith('Re: ')
-      ? rawSubject
-      : `Re: ${rawSubject}`;
+    const subject = isAppChannel
+      ? ''
+      : rawSubject.startsWith('Re: ')
+        ? rawSubject
+        : `Re: ${rawSubject}`;
 
     return {
       loading: false,

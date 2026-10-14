@@ -11,6 +11,8 @@ import { type EmailThreadMessageWithSender } from '@/activities/emails/types/Ema
 import { getEmailDraftPrefillFromMessage } from '@/activities/emails/utils/getEmailDraftPrefillFromMessage';
 import { type PageLayoutWidget } from '@/page-layout/types/PageLayoutWidget';
 import { WidgetRelationsHeader } from '@/page-layout/widgets/components/WidgetRelationsHeader';
+import { AppMessageThreadComposer } from '@/page-layout/widgets/email-thread/components/AppMessageThreadComposer';
+import { AppMessageThreadView } from '@/page-layout/widgets/email-thread/components/AppMessageThreadView';
 import { EmailThreadComposer } from '@/page-layout/widgets/email-thread/components/EmailThreadComposer';
 import { EmailThreadIntermediaryMessages } from '@/page-layout/widgets/email-thread/components/EmailThreadIntermediaryMessages';
 import { AnimatedPlaceholder } from '@/ui/feedback/empty-state/components/AnimatedPlaceholder/AnimatedPlaceholder';
@@ -21,6 +23,7 @@ import {
 import { useTargetRecord } from '@/ui/layout/contexts/useTargetRecord';
 import { useWorkspaceSurface } from '@/ui/layout/hooks/useWorkspaceSurface';
 import { t } from '@lingui/core/macro';
+import { MessageChannelType } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
 type EmailThreadWidgetProps = {
@@ -33,11 +36,18 @@ export const EmailThreadWidget = ({
   const targetRecord = useTargetRecord();
   const isInSidePanel = useWorkspaceSurface().type === 'side-panel';
 
-  const { thread, messages, fetchMoreMessages, threadLoading } = useEmailThread(
-    targetRecord.id,
-  );
+  const {
+    thread,
+    messages,
+    fetchMoreMessages,
+    threadLoading,
+    messageChannelType,
+    messageChannelDisplayName,
+    connectedAccountHandle,
+  } = useEmailThread(targetRecord.id);
 
   const replyContext = useReplyContext(targetRecord.id);
+  const isAppChannel = messageChannelType === MessageChannelType.APP;
 
   const [composerIntent, setComposerIntent] = useState<
     'opened' | 'closed' | null
@@ -119,6 +129,26 @@ export const EmailThreadWidget = ({
             </EmptyState.Content>
           </EmptyState.Root>
         </StyledWidgetScrollContainer>
+      </StyledWidgetContentContainer>
+    );
+  }
+
+  if (isAppChannel) {
+    return (
+      <StyledWidgetContentContainer>
+        <WidgetRelationsHeader />
+        <StyledWidgetScrollContainer>
+          <AppMessageThreadView
+            messages={messages}
+            channelName={messageChannelDisplayName ?? ''}
+            connectedAccountHandle={connectedAccountHandle}
+            threadLoading={threadLoading}
+            fetchMoreMessages={fetchMoreMessages}
+          />
+        </StyledWidgetScrollContainer>
+        {canReply && (
+          <AppMessageThreadComposer replyContext={replyContext} />
+        )}
       </StyledWidgetContentContainer>
     );
   }

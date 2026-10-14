@@ -1,5 +1,8 @@
 import { useQuery } from '@apollo/client/react';
-import { type ConnectedAccountProvider } from 'twenty-shared/types';
+import {
+  type ConnectedAccountProvider,
+  type MessageChannelType,
+} from 'twenty-shared/types';
 
 import {
   MyConnectedAccountsDocument,
@@ -29,6 +32,12 @@ export const useReplyConnectedAccount = (messageChannelId: string | null) => {
     connectedAccountHandle: replyConnectedAccount?.handle ?? null,
     connectedAccountProvider:
       (replyConnectedAccount?.provider as ConnectedAccountProvider) ?? null,
+    messageChannelType: (threadMessageChannel?.type as MessageChannelType) ?? null,
+    messageChannelDisplayName:
+      threadMessageChannel?.displayName ??
+      threadMessageChannel?.handle ??
+      null,
+    messageChannelId: threadMessageChannel?.id ?? null,
     loading: connectedAccountsLoading || messageChannelsLoading,
   };
 };

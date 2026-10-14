@@ -5,4 +5,5 @@ export const EMAIL_SENDING_PROVIDERS: ConnectedAccountProvider[] = [
   ConnectedAccountProvider.MICROSOFT,
   ConnectedAccountProvider.IMAP_SMTP_CALDAV,
   ConnectedAccountProvider.EMAIL_GROUP,
+  ConnectedAccountProvider.APP,
 ];

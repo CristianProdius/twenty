@@ -150,11 +150,30 @@ describe('canConnectedAccountPerformEmailOperation', () => {
       ).toBe(false);
     });
 
+    it('lets an APP connected account send but never draft', () => {
+      const connectedAccount = {
+        provider: ConnectedAccountProvider.APP,
+        connectionParameters: null,
+      };
+
+      expect(
+        canConnectedAccountPerformEmailOperation({
+          connectedAccount,
+          operation: EmailOperation.SEND,
+        }),
+      ).toBe(true);
+      expect(
+        canConnectedAccountPerformEmailOperation({
+          connectedAccount,
+          operation: EmailOperation.DRAFT,
+        }),
+      ).toBe(false);
+    });
+
     it('refuses a provider absent from both allowlists even with SMTP configured', () => {
       for (const provider of [
         ConnectedAccountProvider.OIDC,
         ConnectedAccountProvider.SAML,
-        ConnectedAccountProvider.APP,
       ]) {
         expect(
           canConnectedAccountPerformEmailOperation({

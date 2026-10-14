@@ -134,6 +134,9 @@ export const useEmailThread = (threadId: string | null) => {
     connectedAccountId,
     connectedAccountHandle,
     connectedAccountProvider,
+    messageChannelType,
+    messageChannelDisplayName,
+    messageChannelId,
     loading: replyConnectedAccountLoading,
   } = useReplyConnectedAccount(lastMessageChannelId);
 
@@ -160,6 +163,9 @@ export const useEmailThread = (threadId: string | null) => {
     connectedAccountId,
     connectedAccountHandle,
     connectedAccountProvider,
+    messageChannelType,
+    messageChannelDisplayName,
+    messageChannelId,
     threadLoading: threadRecordLoading || messagesLoading,
     messageChannelLoading,
     lastMessageExternalId,
