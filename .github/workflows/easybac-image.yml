@@ -31,9 +31,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract short SHA
+      - name: Extract short SHA and app version
         id: meta
-        run: echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          base=$(grep -oE "'[0-9]+\.[0-9]+\.[0-9]+'" packages/twenty-server/src/engine/core-modules/upgrade/constants/twenty-current-version.constant.ts | tr -d "'")
+          # APP_VERSION must parse as semver; build metadata keeps the fork commit visible.
+          echo "app_version=${base}+easybac.${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -46,4 +50,4 @@ jobs:
             ghcr.io/cristianprodius/twenty-easybac:${{ steps.meta.outputs.short_sha }}
             ghcr.io/cristianprodius/twenty-easybac:easybac
           build-args: |
-            APP_VERSION=${{ steps.meta.outputs.short_sha }}
+            APP_VERSION=${{ steps.meta.outputs.app_version }}
