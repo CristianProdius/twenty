@@ -1,4 +1,5 @@
 import { isDefined } from 'twenty-shared/utils';
+import { filterVisibleSidePanelWidgetFooterCommandMenuItems } from '@/page-layout/widgets/email-thread/utils/getAppMessageThreadFooterClaim';
 import { sidePanelWidgetFooterCommandMenuItemsState } from '@/ui/layout/side-panel/states/sidePanelWidgetFooterCommandMenuItemsState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { Button } from 'twenty-ui/primitives/input';
@@ -9,9 +10,9 @@ export const RecordPageSidePanelWidgetCommandMenuItems = () => {
   );
 
   const pinnedWidgetCommandMenuItems =
-    sidePanelWidgetFooterCommandMenuItems.filter(
-      (commandMenuItem) => commandMenuItem.isPinned !== false,
-    );
+    filterVisibleSidePanelWidgetFooterCommandMenuItems(
+      sidePanelWidgetFooterCommandMenuItems,
+    ).filter((commandMenuItem) => commandMenuItem.isPinned !== false);
 
   return (
     <>

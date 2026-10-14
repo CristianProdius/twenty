@@ -14,7 +14,9 @@ import { WidgetRelationsHeader } from '@/page-layout/widgets/components/WidgetRe
 import { AppMessageThreadComposer } from '@/page-layout/widgets/email-thread/components/AppMessageThreadComposer';
 import { AppMessageThreadView } from '@/page-layout/widgets/email-thread/components/AppMessageThreadView';
 import { EmailThreadComposer } from '@/page-layout/widgets/email-thread/components/EmailThreadComposer';
+import { EmailThreadComposerFooterEffect } from '@/page-layout/widgets/email-thread/components/EmailThreadComposerFooterEffect';
 import { EmailThreadIntermediaryMessages } from '@/page-layout/widgets/email-thread/components/EmailThreadIntermediaryMessages';
+import { getAppMessageThreadFooterClaim } from '@/page-layout/widgets/email-thread/utils/getAppMessageThreadFooterClaim';
 import { AnimatedPlaceholder } from '@/ui/feedback/empty-state/components/AnimatedPlaceholder/AnimatedPlaceholder';
 import {
   StyledWidgetContentContainer,
@@ -136,6 +138,11 @@ export const EmailThreadWidget = ({
   if (isAppChannel) {
     return (
       <StyledWidgetContentContainer>
+        {isInSidePanel && (
+          <EmailThreadComposerFooterEffect
+            footerCommandMenuItems={getAppMessageThreadFooterClaim()}
+          />
+        )}
         <WidgetRelationsHeader />
         <StyledWidgetScrollContainer>
           <AppMessageThreadView
@@ -146,9 +153,7 @@ export const EmailThreadWidget = ({
             fetchMoreMessages={fetchMoreMessages}
           />
         </StyledWidgetScrollContainer>
-        {canReply && (
-          <AppMessageThreadComposer replyContext={replyContext} />
-        )}
+        {canReply && <AppMessageThreadComposer replyContext={replyContext} />}
       </StyledWidgetContentContainer>
     );
   }
