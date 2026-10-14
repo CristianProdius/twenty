@@ -1,11 +1,11 @@
 import { isNonEmptyString, isString } from '@sniptt/guards';
 import type { JSONContent } from '@tiptap/react';
 import {
-  TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
   TIPTAP_NODE_TYPES,
   isDefined,
   parseTemplateVariableWithFallback,
 } from 'twenty-shared/utils';
+import { CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX } from 'twenty-shared/workflow';
 
 type FindTemplateVariableFallbacksByNameArgs = {
   rawContent: string;
@@ -25,7 +25,7 @@ export const findTemplateVariableFallbacksByName = ({
   editorContent,
 }: FindTemplateVariableFallbacksByNameArgs): Map<string, string> => {
   const rawContentRawTemplateVariables = Array.from(
-    rawContent.matchAll(TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN),
+    rawContent.matchAll(CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX),
     ([rawTemplateVariable]) => rawTemplateVariable,
   );
   const editorContentRawTemplateVariables = isDefined(editorContent)

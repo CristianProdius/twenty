@@ -62,7 +62,7 @@ export const TemplateVariableWithFallbackChip = ({
     const rawTemplateVariableWithSubmittedFallback =
       formatTemplateVariableWithFallback({
         name: templateVariableWithFallback.name,
-        fallback,
+        fallback: fallback.replace(/[{}]/g, ''),
       });
 
     closeDropdown(dropdownId);

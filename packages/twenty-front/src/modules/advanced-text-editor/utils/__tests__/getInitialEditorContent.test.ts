@@ -1,5 +1,4 @@
 import { getInitialEditorContent } from '@/advanced-text-editor/utils/getInitialEditorContent';
-import { TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN } from 'twenty-shared/utils';
 
 describe('getInitialEditorContent', () => {
   it('should handle single line text', () => {
@@ -283,14 +282,11 @@ describe('getInitialEditorContent', () => {
 `);
   });
 
-  it('should keep a variable with a fallback in one tag when given its pattern', () => {
-    const variable = '{{jobTitle | default: "the \\"boss\\" }} {x}"}}';
+  it('should keep a variable with a fallback in one tag', () => {
+    const variable = '{{jobTitle | default: "the \\"boss\\" | x"}}';
 
     expect(
-      getInitialEditorContent(
-        `For ${variable} only`,
-        TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
-      ).content?.[0]?.content,
+      getInitialEditorContent(`For ${variable} only`).content?.[0]?.content,
     ).toEqual([
       { type: 'text', text: 'For ' },
       { type: 'variableTag', attrs: { variable } },

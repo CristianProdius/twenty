@@ -11,11 +11,7 @@ import { Slice } from '@tiptap/pm/model';
 
 import { type Editor, useEditor } from '@tiptap/react';
 import { useEffect } from 'react';
-import {
-  isDefined,
-  parseJson,
-  TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
-} from 'twenty-shared/utils';
+import { isDefined, parseJson } from 'twenty-shared/utils';
 import { CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX } from 'twenty-shared/workflow';
 import { type JsonValue } from 'type-fest';
 
@@ -52,9 +48,6 @@ export const useTextVariableEditor = ({
   const variableTagExtension = enableTemplateVariableFallback
     ? TemplateVariableWithFallbackTag
     : WorkflowVariableTag;
-  const variableTagPattern = enableTemplateVariableFallback
-    ? TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN
-    : CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX;
 
   const editor = useEditor({
     extensions: [
@@ -75,7 +68,7 @@ export const useTextVariableEditor = ({
       UndoRedo,
     ],
     content: isDefined(defaultValue)
-      ? getInitialEditorContent(defaultValue, variableTagPattern)
+      ? getInitialEditorContent(defaultValue)
       : undefined,
     editable: !readonly,
     onUpdate: ({ editor }) => {
@@ -120,7 +113,7 @@ export const useTextVariableEditor = ({
             ? JSON.stringify(parsedJson, null, 2)
             : JSON.stringify(parsedJson);
           const docNode = schema.nodeFromJSON(
-            getInitialEditorContent(formattedJson, variableTagPattern),
+            getInitialEditorContent(formattedJson),
           );
           const inlineContent = docNode.firstChild?.content;
 
@@ -135,14 +128,14 @@ export const useTextVariableEditor = ({
           multiline && plainText.includes('\n');
         const isSingleLinePasteWithVariableTags =
           !plainText.includes('\n') &&
-          isDefined(plainText.match(variableTagPattern));
+          isDefined(plainText.match(CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX));
 
         if (
           isMultilinePasteIntoMultilineEditor ||
           isSingleLinePasteWithVariableTags
         ) {
           const docNode = schema.nodeFromJSON(
-            getInitialEditorContent(plainText, variableTagPattern),
+            getInitialEditorContent(plainText),
           );
           const inlineContent = docNode.firstChild?.content;
 
