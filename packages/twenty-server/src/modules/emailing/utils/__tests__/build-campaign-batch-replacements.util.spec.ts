@@ -5,7 +5,7 @@ describe('buildCampaignBatchReplacements', () => {
   it('escapes a value for the html body and leaves it raw for the text body', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'name.firstName' }],
-      variables: { 'name.firstName': '<img onerror="x">' },
+      values: { 'name.firstName': '<img onerror="x">' },
     });
 
     expect(applyReplacementTags('Hello {{v_h_0}}', replacements)).toBe(
@@ -19,7 +19,7 @@ describe('buildCampaignBatchReplacements', () => {
   it('percent-encodes a value destined for a url so it cannot leave its attribute', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'name.firstName' }],
-      variables: { 'name.firstName': '" onmouseover="alert(1)' },
+      values: { 'name.firstName': '" onmouseover="alert(1)' },
     });
 
     expect(
@@ -33,7 +33,7 @@ describe('buildCampaignBatchReplacements', () => {
   it('strips the scheme separator from a url value so it cannot become executable', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'website' }],
-      variables: { website: 'javascript:alert(1)' },
+      values: { website: 'javascript:alert(1)' },
     });
 
     expect(applyReplacementTags('{{v_u_0}}', replacements)).toBe(
@@ -44,7 +44,7 @@ describe('buildCampaignBatchReplacements', () => {
   it('substitutes an empty string for a variable the recipient has no value for', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'jobTitle' }],
-      variables: {},
+      values: {},
     });
 
     expect(applyReplacementTags('Role: {{v_t_0}}.', replacements)).toBe(
@@ -55,7 +55,7 @@ describe('buildCampaignBatchReplacements', () => {
   it('keeps each variable on its own pair of tags', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'first' }, { name: 'second' }],
-      variables: { first: 'Ada', second: 'Lovelace' },
+      values: { first: 'Ada', second: 'Lovelace' },
     });
 
     expect(applyReplacementTags('{{v_t_0}} {{v_t_1}}', replacements)).toBe(
@@ -66,7 +66,7 @@ describe('buildCampaignBatchReplacements', () => {
   it('leaves a tag the recipient has no replacement for untouched rather than blanking it', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'known' }],
-      variables: { known: 'yes' },
+      values: { known: 'yes' },
     });
 
     expect(applyReplacementTags('{{v_t_0}} {{v_t_9}}', replacements)).toBe(
@@ -79,7 +79,7 @@ describe('fallback values', () => {
   it('uses the fallback for a recipient whose value is only whitespace', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'jobTitle', fallback: 'there' }],
-      variables: { jobTitle: '  \n ' },
+      values: { jobTitle: '  \n ' },
     });
 
     expect(applyReplacementTags('Hi {{v_t_0}}', replacements)).toBe('Hi there');
@@ -88,7 +88,7 @@ describe('fallback values', () => {
   it('keeps the recipient value when there is one', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'jobTitle', fallback: 'there' }],
-      variables: { jobTitle: 'CTO' },
+      values: { jobTitle: 'CTO' },
     });
 
     expect(applyReplacementTags('Hi {{v_t_0}}', replacements)).toBe('Hi CTO');
@@ -97,7 +97,7 @@ describe('fallback values', () => {
   it('escapes the fallback for html and percent-encodes it for urls like a value', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'jobTitle', fallback: "<b>R&D</b> 'lead'" }],
-      variables: {},
+      values: {},
     });
 
     expect(applyReplacementTags('{{v_h_0}}', replacements)).toBe(
@@ -116,7 +116,7 @@ describe('inherited object properties', () => {
   it('treats a variable named after an Object prototype member as absent rather than its function', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'toString' }],
-      variables: {},
+      values: {},
     });
 
     expect(applyReplacementTags('Hi {{v_t_0}}.', replacements)).toBe('Hi .');
@@ -125,7 +125,7 @@ describe('inherited object properties', () => {
   it('leaves a prototype-named tag untouched instead of resolving it off Object.prototype', () => {
     const replacements = buildCampaignBatchReplacements({
       campaignVariables: [{ name: 'known' }],
-      variables: { known: 'yes' },
+      values: { known: 'yes' },
     });
 
     expect(

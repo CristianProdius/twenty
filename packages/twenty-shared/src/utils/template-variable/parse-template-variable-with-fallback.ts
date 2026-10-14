@@ -1,27 +1,38 @@
+import { isNonEmptyArray } from '@/utils/array/isNonEmptyArray';
 import { isDefined } from '@/utils/validation/isDefined';
+import { isStandaloneVariableString } from '@/workflow/utils/isStandaloneVariableString';
 
 import { type TemplateVariableWithFallback } from './template-variable-with-fallback';
-import { TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN } from './template-variable-with-fallback-pattern';
+
+const TEMPLATE_VARIABLE_NAME_PATTERN = /^[a-zA-Z]\w*(?:\.[a-zA-Z]\w*)*$/;
+
+const DEFAULT_FILTER_PATTERN = /^default\s*:\s*"((?:[^"\\]|\\["\\])*)"$/;
 
 export const parseTemplateVariableWithFallback = (
   rawTemplateVariable: string,
 ): TemplateVariableWithFallback | undefined => {
-  const [match] = rawTemplateVariable.matchAll(
-    TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
-  );
-
-  if (!isDefined(match) || match[0] !== rawTemplateVariable) {
+  if (!isStandaloneVariableString(rawTemplateVariable)) {
     return undefined;
   }
 
-  const [, name, escapedFallback] = match;
+  const [rawName = '', ...rawFilterParts] = rawTemplateVariable
+    .slice(2, -2)
+    .split('|');
+  const name = rawName.trim();
 
-  if (!isDefined(name)) {
+  if (!TEMPLATE_VARIABLE_NAME_PATTERN.test(name)) {
     return undefined;
   }
+
+  if (!isNonEmptyArray(rawFilterParts)) {
+    return { name };
+  }
+
+  const [, escapedFallback] =
+    rawFilterParts.join('|').trim().match(DEFAULT_FILTER_PATTERN) ?? [];
 
   if (!isDefined(escapedFallback)) {
-    return { name };
+    return undefined;
   }
 
   return { name, fallback: escapedFallback.replace(/\\(["\\])/g, '$1') };

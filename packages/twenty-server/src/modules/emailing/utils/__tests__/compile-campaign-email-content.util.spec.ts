@@ -20,7 +20,7 @@ const { compileOutboundEmailContent } = jest.requireMock(
   'src/engine/core-modules/email/utils/compile-outbound-email-content.util',
 );
 
-const VARIABLES = {
+const VALUES = {
   firstName: 'Ada',
   lastName: 'Lovelace',
   fullName: 'Ada Lovelace',
@@ -46,10 +46,10 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should render a TipTap document through the email renderer', async () => {
-    const content = await compileCampaignEmailContent(
-      buildDocument('Hello there'),
-      VARIABLES,
-    );
+    const content = await compileCampaignEmailContent({
+      bodyTemplate: buildDocument('Hello there'),
+      values: VALUES,
+    });
 
     expect(content).toEqual({
       html: '<p>rendered html</p>',
@@ -68,10 +68,10 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should substitute variables inside text nodes', async () => {
-    await compileCampaignEmailContent(
-      buildDocument('Hi {{firstName}}, from {{fullName}}'),
-      VARIABLES,
-    );
+    await compileCampaignEmailContent({
+      bodyTemplate: buildDocument('Hi {{firstName}}, from {{fullName}}'),
+      values: VALUES,
+    });
 
     expect(compiledDocument().content[0].content[0].text).toBe(
       'Hi Ada, from Ada Lovelace',
@@ -79,8 +79,8 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should substitute variables carried by variable chip attributes', async () => {
-    await compileCampaignEmailContent(
-      serializeDocument([
+    await compileCampaignEmailContent({
+      bodyTemplate: serializeDocument([
         {
           type: 'paragraph',
           content: [
@@ -89,8 +89,8 @@ describe('compileCampaignEmailContent', () => {
           ],
         },
       ]),
-      VARIABLES,
-    );
+      values: VALUES,
+    });
 
     expect(compiledDocument().content[0].content[1]).toEqual({
       type: 'text',
@@ -99,8 +99,8 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should substitute variables inside button and link URLs', async () => {
-    await compileCampaignEmailContent(
-      serializeDocument([
+    await compileCampaignEmailContent({
+      bodyTemplate: serializeDocument([
         {
           type: 'button',
           attrs: { href: 'https://example.com/p/{{personId}}' },
@@ -122,8 +122,8 @@ describe('compileCampaignEmailContent', () => {
           ],
         },
       ]),
-      VARIABLES,
-    );
+      values: VALUES,
+    });
 
     expect(compiledDocument().content[0].attrs.href).toBe(
       'https://example.com/p/person-123',
@@ -134,16 +134,16 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should percent-encode a URL fallback like the real send does', async () => {
-    await compileCampaignEmailContent(
-      serializeDocument([
+    await compileCampaignEmailContent({
+      bodyTemplate: serializeDocument([
         {
           type: 'button',
           attrs: { href: '{{website | default: "https://twenty.com/a b"}}' },
           content: [{ type: 'text', text: 'Open' }],
         },
       ]),
-      VARIABLES,
-    );
+      values: VALUES,
+    });
 
     expect(compiledDocument().content[0].attrs.href).toBe(
       'https%3A%2F%2Ftwenty.com%2Fa%20b',
@@ -151,8 +151,8 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should substitute variables inside image link URLs', async () => {
-    await compileCampaignEmailContent(
-      serializeDocument([
+    await compileCampaignEmailContent({
+      bodyTemplate: serializeDocument([
         {
           type: 'image',
           attrs: {
@@ -162,8 +162,8 @@ describe('compileCampaignEmailContent', () => {
           },
         },
       ]),
-      VARIABLES,
-    );
+      values: VALUES,
+    });
 
     expect(compiledDocument().content[0].attrs.href).toBe(
       'https://example.com/promo/person-123',
@@ -175,8 +175,8 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should substitute variables inside raw HTML blocks with escaping', async () => {
-    await compileCampaignEmailContent(
-      serializeDocument([
+    await compileCampaignEmailContent({
+      bodyTemplate: serializeDocument([
         {
           type: 'html',
           attrs: {
@@ -184,8 +184,8 @@ describe('compileCampaignEmailContent', () => {
           },
         },
       ]),
-      { ...VARIABLES, firstName: '<b>Ada</b>' },
-    );
+      values: { ...VALUES, firstName: '<b>Ada</b>' },
+    });
 
     expect(compiledDocument().content[0].attrs.html).toBe(
       '<a href="https://example.com/p/person-123">Hi &lt;b&gt;Ada&lt;/b&gt;</a>',
@@ -216,7 +216,10 @@ describe('compileCampaignEmailContent', () => {
       },
     ]);
 
-    await compileCampaignEmailContent(document, VARIABLES);
+    await compileCampaignEmailContent({
+      bodyTemplate: document,
+      values: VALUES,
+    });
 
     const textNode =
       compiledDocument().content[0].content[0].content[0].content[0];
@@ -226,18 +229,18 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should replace unknown variables with an empty string', async () => {
-    await compileCampaignEmailContent(
-      buildDocument('Hi {{unknown}}!'),
-      VARIABLES,
-    );
+    await compileCampaignEmailContent({
+      bodyTemplate: buildDocument('Hi {{unknown}}!'),
+      values: VALUES,
+    });
 
     expect(compiledDocument().content[0].content[0].text).toBe('Hi !');
   });
 
   it('should leave a value containing markup for the renderer to escape', async () => {
-    await compileCampaignEmailContent(buildDocument('{{firstName}}'), {
-      ...VARIABLES,
-      firstName: '<script>alert(1)</script>',
+    await compileCampaignEmailContent({
+      bodyTemplate: buildDocument('{{firstName}}'),
+      values: { ...VALUES, firstName: '<script>alert(1)</script>' },
     });
 
     expect(compiledDocument().content[0].content[0].text).toBe(
@@ -245,8 +248,11 @@ describe('compileCampaignEmailContent', () => {
     );
   });
 
-  it('should keep placeholders in place when no variables are given', async () => {
-    await compileCampaignEmailContent(buildDocument('Hi {{firstName}}'), null);
+  it('should keep placeholders in place when no values are given', async () => {
+    await compileCampaignEmailContent({
+      bodyTemplate: buildDocument('Hi {{firstName}}'),
+      values: null,
+    });
 
     expect(compiledDocument().content[0].content[0].text).toBe(
       'Hi {{firstName}}',
@@ -254,11 +260,18 @@ describe('compileCampaignEmailContent', () => {
   });
 
   it('should render an empty body as empty without calling the renderer', async () => {
-    expect(await compileCampaignEmailContent('', VARIABLES)).toEqual({
+    expect(
+      await compileCampaignEmailContent({ bodyTemplate: '', values: VALUES }),
+    ).toEqual({
       html: '',
       plainText: '',
     });
-    expect(await compileCampaignEmailContent('   ', VARIABLES)).toEqual({
+    expect(
+      await compileCampaignEmailContent({
+        bodyTemplate: '   ',
+        values: VALUES,
+      }),
+    ).toEqual({
       html: '',
       plainText: '',
     });
@@ -267,40 +280,49 @@ describe('compileCampaignEmailContent', () => {
 
   it('should reject a body that is not JSON', async () => {
     await expect(
-      compileCampaignEmailContent('<p>Hi {{firstName}}</p>', VARIABLES),
+      compileCampaignEmailContent({
+        bodyTemplate: '<p>Hi {{firstName}}</p>',
+        values: VALUES,
+      }),
     ).rejects.toThrow('not a renderable email document');
   });
 
   it('should reject a JSON value that is not a document', async () => {
     await expect(
-      compileCampaignEmailContent('{"foo":"bar"}', VARIABLES),
+      compileCampaignEmailContent({
+        bodyTemplate: '{"foo":"bar"}',
+        values: VALUES,
+      }),
     ).rejects.toMatchObject({
       code: EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_NOT_SENDABLE,
     });
 
     await expect(
-      compileCampaignEmailContent('{"foo":"bar"}', VARIABLES),
+      compileCampaignEmailContent({
+        bodyTemplate: '{"foo":"bar"}',
+        values: VALUES,
+      }),
     ).rejects.toBeInstanceOf(EmailingDomainException);
   });
 
   it('should reject a document with a non-array content', async () => {
     await expect(
-      compileCampaignEmailContent(
-        JSON.stringify({
+      compileCampaignEmailContent({
+        bodyTemplate: JSON.stringify({
           type: 'doc',
           attrs: { schemaVersion: EMAIL_DOCUMENT_SCHEMA_VERSION },
           content: 'not an array',
         }),
-        VARIABLES,
-      ),
+        values: VALUES,
+      }),
     ).rejects.toThrow('not a renderable email document');
   });
 
   it('should render a document with no content at all', async () => {
-    const content = await compileCampaignEmailContent(
-      serializeDocument(),
-      VARIABLES,
-    );
+    const content = await compileCampaignEmailContent({
+      bodyTemplate: serializeDocument(),
+      values: VALUES,
+    });
 
     expect(content.html).toBe('<p>rendered html</p>');
     expect(compiledDocument()).toEqual({
@@ -311,10 +333,10 @@ describe('compileCampaignEmailContent', () => {
 
   it('should reject a versionless document', async () => {
     await expect(
-      compileCampaignEmailContent(
-        JSON.stringify({ type: 'doc', content: [] }),
-        VARIABLES,
-      ),
+      compileCampaignEmailContent({
+        bodyTemplate: JSON.stringify({ type: 'doc', content: [] }),
+        values: VALUES,
+      }),
     ).rejects.toThrow('not a renderable email document');
   });
 });

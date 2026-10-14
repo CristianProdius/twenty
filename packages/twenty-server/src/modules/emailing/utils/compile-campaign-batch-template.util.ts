@@ -29,20 +29,6 @@ type CampaignBatchTagFamilyByContext = Record<
   CampaignBatchTagFamily
 >;
 
-const HTML_BODY_TAG_FAMILY_BY_CONTEXT: CampaignBatchTagFamilyByContext = {
-  html: 'htmlEscaped',
-  rawHtml: 'htmlEscaped',
-  text: 'htmlEscaped',
-  url: 'urlEncoded',
-};
-
-const PLAIN_TEXT_BODY_TAG_FAMILY_BY_CONTEXT: CampaignBatchTagFamilyByContext = {
-  html: 'htmlEscaped',
-  rawHtml: 'htmlEscaped',
-  text: 'raw',
-  url: 'urlEncoded',
-};
-
 export const compileCampaignBatchTemplate = async ({
   subjectTemplate,
   bodyTemplate,
@@ -112,10 +98,18 @@ export const compileCampaignBatchTemplate = async ({
       ),
     );
 
-  const { html } = await compileTaggedDocument(HTML_BODY_TAG_FAMILY_BY_CONTEXT);
-  const { html: plainTextSourceHtml, plainText } = await compileTaggedDocument(
-    PLAIN_TEXT_BODY_TAG_FAMILY_BY_CONTEXT,
-  );
+  const { html } = await compileTaggedDocument({
+    html: 'htmlEscaped',
+    rawHtml: 'htmlEscaped',
+    text: 'htmlEscaped',
+    url: 'urlEncoded',
+  });
+  const { html: plainTextSourceHtml, plainText } = await compileTaggedDocument({
+    html: 'htmlEscaped',
+    rawHtml: 'htmlEscaped',
+    text: 'raw',
+    url: 'urlEncoded',
+  });
 
   return {
     template: { subject, text: plainText, html: isDefined(html) ? html : '' },

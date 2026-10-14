@@ -330,15 +330,14 @@ export class MessageCampaignBatchDeliveryService {
     const replacementsByDeliveryId = new Map<string, Record<string, string>>();
 
     for (const recipient of claimedRecipients) {
-      const variables =
-        await this.campaignVariableService.buildVariablesForPerson(
-          workspaceId,
-          personById.get(recipient.personId) ?? null,
-        );
+      const values = await this.campaignVariableService.buildVariablesForPerson(
+        workspaceId,
+        personById.get(recipient.personId) ?? null,
+      );
 
       replacementsByDeliveryId.set(
         recipient.messageId,
-        buildCampaignBatchReplacements({ campaignVariables, variables }),
+        buildCampaignBatchReplacements({ campaignVariables, values }),
       );
     }
 

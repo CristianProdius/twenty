@@ -299,15 +299,14 @@ export class MessageCampaignDeliveryService {
       return;
     }
 
-    const variables =
-      await this.campaignVariableService.buildVariablesForPerson(
-        workspaceId,
-        person,
-      );
+    const values = await this.campaignVariableService.buildVariablesForPerson(
+      workspaceId,
+      person,
+    );
     const { subject, html, plainText } = await renderCampaignEmail({
       subjectTemplate: campaign.subject ?? '',
       bodyTemplate: campaign.bodyTemplate ?? '',
-      variables,
+      values,
     });
 
     const fromAddress = campaign.fromAddress?.primaryEmail ?? '';

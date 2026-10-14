@@ -17,10 +17,10 @@ describe('formatTemplateVariableWithFallback', () => {
     ).toBe('{{name.firstName | default: "there"}}');
   });
 
-  it('should round-trip a fallback containing quotes, backslashes and braces', () => {
+  it('should round-trip a fallback containing quotes, backslashes and pipes', () => {
     const templateVariableWithFallback = {
       name: 'jobTitle',
-      fallback: 'the "boss" C:\\temp\\ }} <b>',
+      fallback: 'the "boss" C:\\temp\\ | <b>',
     };
 
     expect(

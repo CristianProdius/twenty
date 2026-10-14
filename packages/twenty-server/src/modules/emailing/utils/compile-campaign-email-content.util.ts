@@ -1,6 +1,5 @@
 import { msg } from '@lingui/core/macro';
 import {
-  type EmailDocumentStringContext,
   isDefined,
   parseCanonicalEmailDocument,
   parseJson,
@@ -16,20 +15,13 @@ import {
 import { escapeHtml } from 'src/engine/core-modules/emailing-domain/utils/escape-html.util';
 import { renderCampaignTemplate } from 'src/modules/emailing/utils/render-campaign-template.util';
 
-const VALUE_ENCODER_BY_CONTEXT: Record<
-  EmailDocumentStringContext,
-  (value: string) => string
-> = {
-  html: escapeHtml,
-  rawHtml: escapeHtml,
-  text: (value) => value,
-  url: encodeURIComponent,
-};
-
-export const compileCampaignEmailContent = async (
-  bodyTemplate: string,
-  variables: Record<string, string> | null,
-): Promise<CompiledOutboundEmailContent> => {
+export const compileCampaignEmailContent = async ({
+  bodyTemplate,
+  values,
+}: {
+  bodyTemplate: string;
+  values: Record<string, string> | null;
+}): Promise<CompiledOutboundEmailContent> => {
   if (bodyTemplate.trim() === '') {
     return { html: '', plainText: '' };
   }
@@ -47,10 +39,17 @@ export const compileCampaignEmailContent = async (
   }
 
   return compileOutboundEmailContent(
-    isDefined(variables)
+    isDefined(values)
       ? resolveEmailDocumentBindings(parseResult.document, (value, context) =>
-          renderCampaignTemplate(value, variables, {
-            encodeValue: VALUE_ENCODER_BY_CONTEXT[context],
+          renderCampaignTemplate({
+            template: value,
+            values,
+            encodeValue: {
+              html: escapeHtml,
+              rawHtml: escapeHtml,
+              text: (variableValue: string) => variableValue,
+              url: encodeURIComponent,
+            }[context],
           }),
         )
       : parseResult.document,

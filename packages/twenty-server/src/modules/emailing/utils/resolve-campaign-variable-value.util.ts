@@ -5,14 +5,14 @@ import {
 } from 'twenty-shared/utils';
 
 export const resolveCampaignVariableValue = ({
-  valuesByVariableName,
   campaignVariable: { name, fallback },
+  values,
 }: {
-  valuesByVariableName: Record<string, string>;
   campaignVariable: TemplateVariableWithFallback;
+  values: Record<string, string>;
 }): string => {
-  const value = Object.prototype.hasOwnProperty.call(valuesByVariableName, name)
-    ? (valuesByVariableName[name] ?? '')
+  const value = Object.prototype.hasOwnProperty.call(values, name)
+    ? (values[name] ?? '')
     : '';
 
   return isDefined(fallback) && !isNonEmptyString(value.trim())
