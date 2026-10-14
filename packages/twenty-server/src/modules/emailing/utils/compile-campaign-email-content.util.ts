@@ -15,10 +15,13 @@ import {
 import { escapeHtml } from 'src/engine/core-modules/emailing-domain/utils/escape-html.util';
 import { renderCampaignTemplate } from 'src/modules/emailing/utils/render-campaign-template.util';
 
-export const compileCampaignEmailContent = async (
-  bodyTemplate: string,
-  variables: Record<string, string> | null,
-): Promise<CompiledOutboundEmailContent> => {
+export const compileCampaignEmailContent = async ({
+  bodyTemplate,
+  values,
+}: {
+  bodyTemplate: string;
+  values: Record<string, string> | null;
+}): Promise<CompiledOutboundEmailContent> => {
   if (bodyTemplate.trim() === '') {
     return { html: '', plainText: '' };
   }
@@ -36,9 +39,11 @@ export const compileCampaignEmailContent = async (
   }
 
   return compileOutboundEmailContent(
-    isDefined(variables)
+    isDefined(values)
       ? resolveEmailDocumentBindings(parseResult.document, (value, context) =>
-          renderCampaignTemplate(value, variables, {
+          renderCampaignTemplate({
+            template: value,
+            values,
             encodeValue: {
               html: escapeHtml,
               rawHtml: escapeHtml,

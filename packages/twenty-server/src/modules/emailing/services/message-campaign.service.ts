@@ -255,15 +255,22 @@ export class MessageCampaignService {
       fromAddress,
     });
 
-    const variables =
-      await this.campaignVariableService.buildVariablesForPerson(
-        workspaceId,
-        null,
-      );
+    await this.campaignVariableService.assertKnownVariables(
+      workspaceId,
+      collectCampaignVariableNamesFromTemplates({
+        subject,
+        bodyTemplate: html,
+      }),
+    );
+
+    const values = await this.campaignVariableService.buildVariablesForPerson(
+      workspaceId,
+      null,
+    );
     const rendered = await renderCampaignEmail({
       subjectTemplate: subject,
       bodyTemplate: html,
-      variables,
+      values,
     });
 
     await this.throttlerService.tokenBucketThrottleOrThrow(

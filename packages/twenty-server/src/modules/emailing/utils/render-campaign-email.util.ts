@@ -4,19 +4,21 @@ import { renderCampaignTemplate } from 'src/modules/emailing/utils/render-campai
 export const renderCampaignEmail = async ({
   subjectTemplate,
   bodyTemplate,
-  variables,
+  values,
 }: {
   subjectTemplate: string;
   bodyTemplate: string;
-  variables: Record<string, string>;
+  values: Record<string, string>;
 }): Promise<{ subject: string; html: string; plainText: string }> => {
-  const { html, plainText } = await compileCampaignEmailContent(
+  const { html, plainText } = await compileCampaignEmailContent({
     bodyTemplate,
-    variables,
-  );
+    values,
+  });
 
   return {
-    subject: renderCampaignTemplate(subjectTemplate, variables, {
+    subject: renderCampaignTemplate({
+      template: subjectTemplate,
+      values,
       encodeValue: (value) => value,
     }),
     html,

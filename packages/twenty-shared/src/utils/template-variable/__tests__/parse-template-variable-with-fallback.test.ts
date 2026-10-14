@@ -16,9 +16,9 @@ describe('parseTemplateVariableWithFallback', () => {
     });
     expect(
       parseTemplateVariableWithFallback(
-        '{{ name.firstName|default:"Mr. X }}" }}',
+        '{{ name.firstName|default:"Note: x | y" }}',
       ),
-    ).toEqual({ name: 'name.firstName', fallback: 'Mr. X }}' });
+    ).toEqual({ name: 'name.firstName', fallback: 'Note: x | y' });
   });
 
   it('should unescape quotes and backslashes in the fallback', () => {

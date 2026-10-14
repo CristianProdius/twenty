@@ -1,9 +1,9 @@
 import {
   isDefined,
   parseTemplateVariableWithFallback,
-  TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
   type TemplateVariableWithFallback,
 } from 'twenty-shared/utils';
+import { CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX } from 'twenty-shared/workflow';
 
 export const replaceCampaignVariables = ({
   template,
@@ -15,7 +15,7 @@ export const replaceCampaignVariables = ({
   ) => string;
 }): string =>
   template.replace(
-    TEMPLATE_VARIABLE_WITH_FALLBACK_PATTERN,
+    CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX,
     (rawTemplateVariable) => {
       const campaignVariable =
         parseTemplateVariableWithFallback(rawTemplateVariable);

@@ -11,22 +11,26 @@ describe('collectCampaignVariableNamesFromString', () => {
   });
 
   it.each([
-    '{{jobTitle | there}}',
-    '{{jobTitle | "there"}}',
-    '{{jobTitle | default: there}}',
-    "{{jobTitle | default: 'there'}}",
-    '{{jobTitle | default: “there”}}',
-    '{{jobTitle | default: {there}}}',
-  ])('should reject the near-miss variable %s', (variable) => {
-    expect(() =>
-      collectCampaignVariableNamesFromString(`Hi ${variable}, welcome`),
-    ).toThrow(
-      expect.objectContaining({
-        code: EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_NOT_SENDABLE,
-        message: expect.stringContaining(
-          `Malformed campaign variable: ${variable}`,
-        ),
-      }),
-    );
-  });
+    ['{{jobTitle | there}}', '{{jobTitle | there}}'],
+    ['{{jobTitle | "there"}}', '{{jobTitle | "there"}}'],
+    ['{{jobTitle | default: there}}', '{{jobTitle | default: there}}'],
+    ["{{jobTitle | default: 'there'}}", "{{jobTitle | default: 'there'}}"],
+    ['{{jobTitle | default: “there”}}', '{{jobTitle | default: “there”}}'],
+    ['{{jobTitle | default: {there}}}', '{{jobTitle | default: {there}}'],
+    ['{{jobTitle there', '{{jobTitle there, welcome'],
+  ])(
+    'should reject the malformed variable %s',
+    (variable, reportedVariable) => {
+      expect(() =>
+        collectCampaignVariableNamesFromString(`Hi ${variable}, welcome`),
+      ).toThrow(
+        expect.objectContaining({
+          code: EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_NOT_SENDABLE,
+          message: expect.stringContaining(
+            `Malformed campaign variable: ${reportedVariable}.`,
+          ),
+        }),
+      );
+    },
+  );
 });
