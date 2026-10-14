@@ -16,6 +16,39 @@ Twenty's message model is deliberately channel-neutral: a message has participan
 
 A channel always belongs to one of your app's [connections](/developers/extend/apps/logic/connections) — the credential it speaks through. You need a connection provider before you can create a channel.
 
+Providers that have no OAuth dance (Telegram bots, SMS gateways, phone lines) declare a **static** connection provider and create the connection from an install hook or sync logic function:
+
+```ts
+import { defineConnectionProvider } from 'twenty-sdk';
+import { createStaticConnection, createMessageChannel } from 'twenty-sdk/logic-function';
+import { MessageChannelVisibility } from 'twenty-shared/types';
+
+export default defineConnectionProvider({
+  universalIdentifier: '…',
+  name: 'telegram-bot',
+  displayName: 'Telegram Bot',
+  type: 'static',
+  icon: 'IconBrandTelegram',
+});
+
+// From a logic function:
+const connection = await createStaticConnection({
+  providerName: 'telegram-bot',
+  handle: 'tg-bot:easybac_help_bot',
+  displayName: 'Easy Bac bot',
+  visibility: 'workspace',
+});
+
+await createMessageChannel({
+  connectedAccountId: connection.id,
+  handle: connection.handle,
+  displayName: 'Telegram bot',
+  visibility: MessageChannelVisibility.SHARE_EVERYTHING,
+});
+```
+
+`createStaticConnection` is idempotent on `(providerName, handle)` and creates a `ConnectedAccount` with `provider = APP` (no tokens).
+
 ## Creating a channel
 
 Create the channel once per connected account, from the connection provider's `onConnect` hook. That way the channel's lifetime matches the credential's.
@@ -207,9 +240,40 @@ export const linkedinDisconnectHandler = async (payload: {
 
 Deleting a channel deletes the messages ingested through it, and any thread left with no messages. To stop ingesting while keeping the history, set `isSyncEnabled: false` instead.
 
+## Sending replies (outbound)
+
+Declare an outbound handler on the application so replies composed in Twenty reach your provider:
+
+```ts
+import { defineApplication } from 'twenty-sdk';
+
+export default defineApplication({
+  // …
+  messageOutbound: {
+    logicFunctionUniversalIdentifier: '…-send-message-uuid…',
+  },
+});
+```
+
+When a workspace member sends from an APP channel thread, Twenty invokes that logic function synchronously with:
+
+```ts
+{
+  messageChannelId: string;
+  channelHandle: string;
+  threadExternalId: string;
+  recipients: [{ handle: string }];
+  text: string;
+  inReplyToExternalId?: string;
+}
+```
+
+Return `{ externalId }` (your provider's message id). Twenty persists the outgoing message under the same `app:<applicationId>:<messageChannelId>:<externalId>` header id used by ingestion, so a later echo of the same message dedupes. Errors thrown by the logic function surface to the user as a send failure.
+
+APP threads render as a chat view (bubbles + plain reply box). Email threads are unchanged. Drafts are not supported for APP channels.
+
 ## What a channel does not do
 
 - **It is not polled.** Twenty's import pipeline polls mailbox providers on a cron. App channels are push-only: nothing fetches on your behalf, so your app is responsible for getting messages in, via a webhook route or a cron logic function.
-- **It does not send.** Outbound delivery is not yet routed to apps; a reply composed in Twenty cannot reach your provider. Until it is, link out to the provider's own UI for replies.
 - **It does not resolve contacts.** Twenty matches email participants to People by email address, which cannot match a LinkedIn URN, so app channels [link participants explicitly at ingestion](#linking-participants-to-people) instead.
 - **It does not create contacts.** Twenty's auto-creation derives people and companies from email domains, which is meaningless for most providers, so it is off for app channels. Create the Person yourself, then pass its `personId`.
