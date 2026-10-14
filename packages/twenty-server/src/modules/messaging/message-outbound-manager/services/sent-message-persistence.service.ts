@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { MessageChannelType, MessageParticipantRole } from 'twenty-shared/types';
+import {
+  MessageChannelType,
+  MessageParticipantRole,
+} from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { In, IsNull, Not, Repository } from 'typeorm';
 
@@ -97,7 +100,11 @@ export class SentMessagePersistenceService {
       for (const linkedParticipant of linkedParticipants) {
         const { handle, personId } = linkedParticipant;
 
-        if (isDefined(handle) && isDefined(personId) && !personIdByHandle.has(handle)) {
+        if (
+          isDefined(handle) &&
+          isDefined(personId) &&
+          !personIdByHandle.has(handle)
+        ) {
           personIdByHandle.set(handle, personId);
         }
       }
@@ -110,7 +117,8 @@ export class SentMessagePersistenceService {
           ? personIdByHandle.get(participant.handle)
           : undefined;
 
-        return participant.role !== MessageParticipantRole.FROM && isDefined(personId)
+        return participant.role !== MessageParticipantRole.FROM &&
+          isDefined(personId)
           ? { ...participant, personId }
           : participant;
       }),

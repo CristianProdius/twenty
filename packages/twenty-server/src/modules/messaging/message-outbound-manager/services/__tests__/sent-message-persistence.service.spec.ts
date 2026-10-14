@@ -1,4 +1,7 @@
-import { ConnectedAccountProvider, MessageChannelType } from 'twenty-shared/types';
+import {
+  ConnectedAccountProvider,
+  MessageChannelType,
+} from 'twenty-shared/types';
 
 import { SentMessagePersistenceService } from 'src/modules/messaging/message-outbound-manager/services/sent-message-persistence.service';
 
@@ -15,14 +18,19 @@ const buildService = ({
   });
   const find = jest.fn().mockResolvedValue(linkedParticipants);
   const workspaceOrmManager = {
-    executeInWorkspaceContext: jest.fn(async (callback: () => Promise<void>) => callback()),
+    executeInWorkspaceContext: jest.fn(async (callback: () => Promise<void>) =>
+      callback(),
+    ),
     getRepository: jest.fn(() => ({ find })),
   };
   const messageChannelRepository = {
     findOneOrFail: jest.fn().mockResolvedValue({
       id: 'channel-1',
       type: channelType,
-      connectedAccount: { handle: 'sms:+37369000999', provider: ConnectedAccountProvider.APP },
+      connectedAccount: {
+        handle: 'sms:+37369000999',
+        provider: ConnectedAccountProvider.APP,
+      },
     }),
   };
   const service = new SentMessagePersistenceService(
@@ -53,7 +61,9 @@ describe('SentMessagePersistenceService', () => {
   it('links an app reply recipient to the person already known for that handle', async () => {
     const { service, saveMessagesAndEnqueueContactCreation } = buildService({
       channelType: MessageChannelType.APP,
-      linkedParticipants: [{ handle: 'sms:+37369555111', personId: 'person-1' }],
+      linkedParticipants: [
+        { handle: 'sms:+37369555111', personId: 'person-1' },
+      ],
     });
 
     await service.persistSentMessage(persistInput);
@@ -73,7 +83,9 @@ describe('SentMessagePersistenceService', () => {
   it('leaves email replies to the regular participant matching', async () => {
     const { service, find } = buildService({
       channelType: MessageChannelType.EMAIL,
-      linkedParticipants: [{ handle: 'sms:+37369555111', personId: 'person-1' }],
+      linkedParticipants: [
+        { handle: 'sms:+37369555111', personId: 'person-1' },
+      ],
     });
 
     await service.persistSentMessage(persistInput);
