@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { fetchAllThreadMessagesOperationSignatureFactory } from '@/activities/emails/graphql/operation-signatures/factories/fetchAllThreadMessagesOperationSignatureFactory';
 import { useReplyConnectedAccount } from '@/activities/emails/hooks/useReplyConnectedAccount';
@@ -7,13 +7,19 @@ import { type EmailThreadMessage } from '@/activities/emails/types/EmailThreadMe
 import { type EmailThreadMessageParticipant } from '@/activities/emails/types/EmailThreadMessageParticipant';
 import { type EmailThreadMessageWithSender } from '@/activities/emails/types/EmailThreadMessageWithSender';
 import { type MessageChannelMessageAssociation } from '@/activities/emails/types/MessageChannelMessageAssociation';
+import { getAppMessageThreadCounterpartDisplayName } from '@/activities/emails/utils/getAppMessageThreadCounterpartDisplayName';
+import { getAppMessageThreadCounterpartParticipant } from '@/activities/emails/utils/getAppMessageThreadCounterpartParticipant';
+import { getMessageThreadDisplayTitle } from '@/activities/emails/utils/getMessageThreadDisplayTitle';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
 import { useUpsertRecordsInStore } from '@/object-record/record-store/hooks/useUpsertRecordsInStore';
+import { isNonEmptyString } from '@sniptt/guards';
 import {
   CoreObjectNameSingular,
+  MessageChannelType,
   MessageParticipantRole,
 } from 'twenty-shared/types';
+import { isDefined } from 'twenty-shared/utils';
 
 export const useEmailThread = (threadId: string | null) => {
   const { upsertRecordsInStore } = useUpsertRecordsInStore();
@@ -26,14 +32,9 @@ export const useEmailThread = (threadId: string | null) => {
       objectRecordId: threadId ?? '',
       recordGqlFields: {
         id: true,
+        subject: true,
       },
     });
-
-  useEffect(() => {
-    if (thread) {
-      upsertRecordsInStore({ partialRecords: [thread] });
-    }
-  }, [thread, upsertRecordsInStore]);
 
   const FETCH_ALL_MESSAGES_OPERATION_SIGNATURE =
     fetchAllThreadMessagesOperationSignatureFactory({
@@ -155,6 +156,50 @@ export const useEmailThread = (threadId: string | null) => {
 
   const messageChannelLoading =
     replyConnectedAccountLoading || messageChannelMessageAssociationLoading;
+
+  const isAppChannel = messageChannelType === MessageChannelType.APP;
+
+  const appThreadDisplayTitle = useMemo(() => {
+    if (!isAppChannel || !isDefined(threadId)) {
+      return null;
+    }
+
+    const counterpartParticipant = getAppMessageThreadCounterpartParticipant({
+      messages: messagesWithSender,
+      connectedAccountHandle,
+    });
+
+    return getMessageThreadDisplayTitle({
+      subject: thread?.subject,
+      isAppChannel: true,
+      counterpartDisplayName: getAppMessageThreadCounterpartDisplayName({
+        participant: counterpartParticipant,
+      }),
+    });
+  }, [
+    connectedAccountHandle,
+    isAppChannel,
+    messagesWithSender,
+    thread?.subject,
+    threadId,
+  ]);
+
+  // APP chat threads have no subject; surface the counterpart name in the
+  // record title cell / side-panel header via the labelIdentifier field.
+  useEffect(() => {
+    if (!isDefined(thread)) {
+      return;
+    }
+
+    const subjectForStore =
+      isAppChannel && isNonEmptyString(appThreadDisplayTitle)
+        ? appThreadDisplayTitle
+        : thread.subject;
+
+    upsertRecordsInStore({
+      partialRecords: [{ ...thread, subject: subjectForStore }],
+    });
+  }, [appThreadDisplayTitle, isAppChannel, thread, upsertRecordsInStore]);
 
   return {
     thread,
