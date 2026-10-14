@@ -6,11 +6,20 @@ import { RecordTableCell } from '@/object-record/record-table/record-table-cell/
 import { RecordTableCellFirstRowFirstColumn } from '@/object-record/record-table/record-table-cell/components/RecordTableCellFirstRowFirstColumn';
 import { RecordTableCellStyleWrapper } from '@/object-record/record-table/record-table-cell/components/RecordTableCellStyleWrapper';
 import { RecordTableCellWrapper } from '@/object-record/record-table/record-table-cell/components/RecordTableCellWrapper';
+import { RecordTableFieldCell } from '@/object-record/record-table/record-table-row/components/RecordTableFieldCell';
 import { getRecordTableColumnFieldWidthClassName } from '@/object-record/record-table/utils/getRecordTableColumnFieldWidthClassName';
+import { RecordTableColumnSpacer } from '@/object-record/record-table/virtualization/components/RecordTableColumnSpacer';
+import { useRecordTableColumnVirtualizationItems } from '@/object-record/record-table/virtualization/hooks/useRecordTableColumnVirtualizationItems';
 import { useAtomComponentSelectorValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentSelectorValue';
 import { isDefined, isNonEmptyArray } from 'twenty-shared/utils';
 
-export const RecordTableFieldsCells = () => {
+type RecordTableFieldsCellsProps = {
+  shouldRenderAllColumns?: boolean;
+};
+
+export const RecordTableFieldsCells = ({
+  shouldRenderAllColumns = false,
+}: RecordTableFieldsCellsProps) => {
   const { isSelected, rowIndex } = useRecordTableRowContextOrThrow();
 
   const { isDragging } = useRecordTableRowDraggableContextOrThrow();
@@ -21,11 +30,13 @@ export const RecordTableFieldsCells = () => {
     hasRecordGroupsComponentSelector,
   );
 
+  const columnVirtualizationItems = useRecordTableColumnVirtualizationItems({
+    shouldRenderAllColumns,
+  });
+
   if (!isNonEmptyArray(visibleRecordFields)) {
     return null;
   }
-
-  const recordFieldsAfterFirst = visibleRecordFields.slice(1);
 
   const isFirstRow = rowIndex === 0;
 
@@ -58,23 +69,30 @@ export const RecordTableFieldsCells = () => {
           </RecordTableCellStyleWrapper>
         )}
       </RecordTableCellWrapper>
-      {recordFieldsAfterFirst.map((recordField, recordFieldIndex) => (
-        <RecordTableCellWrapper
-          key={recordField.fieldMetadataItemId}
-          recordField={recordField}
-          recordFieldIndex={recordFieldIndex + 1}
-        >
-          <RecordTableCellStyleWrapper
+      {columnVirtualizationItems.map((columnVirtualizationItem) => {
+        if (columnVirtualizationItem.type === 'spacer') {
+          return (
+            <RecordTableColumnSpacer
+              key={`spacer-${columnVirtualizationItem.firstColumnIndex}`}
+              width={columnVirtualizationItem.width}
+              hasBottomBorder={!isDragging}
+            />
+          );
+        }
+
+        const { columnIndex } = columnVirtualizationItem;
+        const recordField = visibleRecordFields[columnIndex];
+
+        return (
+          <RecordTableFieldCell
+            key={recordField.fieldMetadataItemId}
+            recordField={recordField}
+            recordFieldIndex={columnIndex}
             isSelected={isSelected}
             isDragging={isDragging}
-            widthClassName={getRecordTableColumnFieldWidthClassName(
-              recordFieldIndex + 1,
-            )}
-          >
-            <RecordTableCell />
-          </RecordTableCellStyleWrapper>
-        </RecordTableCellWrapper>
-      ))}
+          />
+        );
+      })}
     </>
   );
 };

@@ -187,7 +187,7 @@ export const RecordTableRowDragOverlayContent = ({
           <RecordTableRowDraggableContextProvider value={{ isDragging: true }}>
             {!isRecordTableDragColumnHidden && <RecordTableCellDragAndDrop />}
             {!isRecordTableCheckboxColumnHidden && <RecordTableCellCheckbox />}
-            <RecordTableFieldsCells />
+            <RecordTableFieldsCells shouldRenderAllColumns />
             <RecordTablePlusButtonCellPlaceholder />
             <RecordTableLastEmptyCell />
           </RecordTableRowDraggableContextProvider>

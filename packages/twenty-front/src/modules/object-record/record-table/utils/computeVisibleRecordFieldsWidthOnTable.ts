@@ -1,5 +1,5 @@
 import { type RecordField } from '@/object-record/record-field/types/RecordField';
-import { isDefined, sumByProperty } from 'twenty-shared/utils';
+import { computeRecordTableColumnOffsets } from '@/object-record/record-table/utils/computeRecordTableColumnOffsets';
 
 export const computeVisibleRecordFieldsWidthOnTable = ({
   firstColumnWidthOverride,
@@ -8,18 +8,12 @@ export const computeVisibleRecordFieldsWidthOnTable = ({
   firstColumnWidthOverride?: number;
   visibleRecordFields: Pick<RecordField, 'size'>[];
 }) => {
-  const sumOfAllFields = visibleRecordFields.reduce(sumByProperty('size'), 0);
-
-  const firstRecordField = visibleRecordFields[0];
-
-  if (!isDefined(firstColumnWidthOverride) || !isDefined(firstRecordField)) {
-    return {
-      visibleRecordFieldsWidth: sumOfAllFields,
-    };
-  }
+  const columnOffsets = computeRecordTableColumnOffsets({
+    visibleRecordFields,
+    firstColumnWidthOverride,
+  });
 
   return {
-    visibleRecordFieldsWidth:
-      sumOfAllFields - firstRecordField.size + firstColumnWidthOverride,
+    visibleRecordFieldsWidth: columnOffsets[columnOffsets.length - 1],
   };
 };
